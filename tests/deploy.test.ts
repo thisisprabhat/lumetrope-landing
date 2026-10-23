@@ -45,5 +45,6 @@ describe("deploy/nginx.conf", () => {
     expect(nginx).toMatch(/location \/assets\/ \{[^}]*public, max-age=31536000, immutable/);
     expect(nginx).toMatch(/location \/ \{[^}]*no-cache/);
   });
+  it("serves the pre-rendered 404 page", () => expect(nginx).toMatch(/^\s*error_page 404 \/404\.html;/m));
   it("serves pre-rendered route folders", () => expect(nginx).toContain("try_files $uri $uri/index.html"));
 });

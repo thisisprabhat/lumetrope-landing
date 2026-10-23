@@ -1,5 +1,9 @@
+import { platformsAnswer } from "./availability";
+import { publishedDownloads, type Download } from "../config/site";
+
 /** Landing-page FAQ. Rendered by src/sections/Faq.tsx and reused for FAQPage JSON-LD. Plain text only. */
-export const FAQ: { q: string; a: string }[] = [
+export function faqFor(list: Download[]): { q: string; a: string }[] {
+  return [
   {
     q: "Is Lumetrope free and open source?",
     a: "Yes. Lumetrope is free and open source under the MIT licence, for the desktop app and the web app alike. The bundled Poppins font is under the SIL Open Font License.",
@@ -26,7 +30,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Which platforms does it run on?",
-    a: "macOS 11 or newer (Apple Silicon and Intel), Windows 10 and 11 (x64 and ARM64), and Linux as .deb or AppImage (x86_64 and ARM64) or .rpm (x86_64). The web app runs in Chrome and Edge 91+, Firefox 89+ and Safari 16.4+.",
+    a: platformsAnswer(list),
   },
   {
     q: "Can an AI agent use Lumetrope?",
@@ -45,3 +49,7 @@ export const FAQ: { q: string; a: string }[] = [
     a: "Yes. The web app is a folder of static files with no backend. Serve it over https from any web server, ideally with .wasm files sent as application/wasm.",
   },
 ];
+}
+
+/** The FAQ for the builds the current release really ships. */
+export const FAQ = faqFor(publishedDownloads());

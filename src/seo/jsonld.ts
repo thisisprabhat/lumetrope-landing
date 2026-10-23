@@ -1,7 +1,8 @@
-import { SITE, downloads, primaryDownload } from "../config/site";
+import { SITE, publishedDownloads, primaryDownload } from "../config/site";
+import { installStatus, operatingSystems } from "../content/availability";
 import { FAQ } from "../content/faq";
 import { DOCS } from "../docs/nav";
-import { DOCS_UPDATED, pageMeta } from "./meta";
+import { DOCS_INDEX_META, DOCS_UPDATED, pageMeta } from "./meta";
 
 const CONTEXT = "https://schema.org";
 const ORG_ID = `${SITE.SITE_URL}/#organization`;
@@ -18,7 +19,7 @@ const HOWTO: Record<string, { name: string; steps: { name: string; text: string 
   "install-macos": {
     name: "Install Lumetrope on macOS",
     steps: [
-      { name: "Download the dmg", text: "Download the .dmg that matches your Mac from the project's GitHub Releases page: aarch64 for Apple Silicon, x64 for Intel." },
+      { name: "Download the dmg", text: `Download the .dmg for your Mac from the project's GitHub Releases page. ${installStatus("mac")}` },
       { name: "Install", text: "Open the dmg and drag Lumetrope to Applications." },
       { name: "Allow the first launch", text: "If Gatekeeper blocks a build that is not notarized, right-click the app, choose Open, then Open again, or run xattr -dr com.apple.quarantine /Applications/Lumetrope.app in Terminal." },
     ],
@@ -26,7 +27,7 @@ const HOWTO: Record<string, { name: string; steps: { name: string; text: string 
   "install-windows": {
     name: "Install Lumetrope on Windows",
     steps: [
-      { name: "Download the installer", text: "Download the NSIS setup (.exe) or the .msi from the project's GitHub Releases page. ARM64 has the .exe only." },
+      { name: "Download the installer", text: `Download the setup (.exe) or .msi from the project's GitHub Releases page. ${installStatus("windows")}` },
       { name: "Run it", text: "Run the installer on Windows 10 or 11. It downloads the WebView2 runtime if it is missing." },
       { name: "Continue past SmartScreen", text: "If Windows shows \"Windows protected your PC\" for an unsigned build, choose More info, then Run anyway." },
     ],
@@ -35,15 +36,15 @@ const HOWTO: Record<string, { name: string; steps: { name: string; text: string 
     name: "Install Lumetrope on Linux",
     steps: [
       { name: "Check requirements", text: "You need a desktop with WebKitGTK 4.1 version 2.40 or newer, which Ubuntu 22.04+, Debian 12+ and Fedora 38+ provide." },
-      { name: "Download the package", text: "Download the .deb, .rpm or .AppImage for your distribution and architecture from the project's GitHub Releases page." },
+      { name: "Download the package", text: `Download the .deb, .rpm or .AppImage for your distribution and architecture from the project's GitHub Releases page. ${installStatus("linux")}` },
       { name: "Install and launch", text: "Install the .deb or .rpm with your package manager. For an AppImage, run chmod +x Lumetrope_*.AppImage, then launch it." },
     ],
   },
 };
 
 function landing() {
-  const list = downloads(SITE.VERSION);
-  const dl = primaryDownload({ os: "mac", arch: "arm64" }, list);
+  const list = publishedDownloads();
+  const dl = primaryDownload({ os: "mac", arch: "arm64" }, list) ?? list[0] ?? null;
   return [
     {
       "@type": "Organization",
@@ -64,7 +65,7 @@ function landing() {
       "@type": "SoftwareApplication",
       name: "Lumetrope",
       description: "Open-source Lottie and dotLottie animation editor with state machines, a WASM engine and an MCP server for AI agents.",
-      operatingSystem: "macOS, Windows, Linux, Web",
+      operatingSystem: operatingSystems(list),
       applicationCategory: "DesignApplication",
       softwareVersion: SITE.VERSION,
       url: SITE.SITE_URL,
@@ -118,6 +119,18 @@ function docs(path: string) {
 /** JSON-LD document for a route, or null for unknown paths. */
 export function jsonLdFor(path: string): object | null {
   if (path === "/") return { "@context": CONTEXT, "@graph": landing() };
+  if (path === "/docs/") {
+    return {
+      "@context": CONTEXT,
+      "@graph": [
+        { "@type": "CollectionPage", name: DOCS_INDEX_META.title, description: DOCS_INDEX_META.description, url: pageMeta(path)!.canonical, publisher: { "@id": ORG_ID } },
+        { "@type": "BreadcrumbList", itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Lumetrope", item: SITE.SITE_URL + "/" },
+          { "@type": "ListItem", position: 2, name: "Docs", item: pageMeta(path)!.canonical },
+        ] },
+      ],
+    };
+  }
   if (!pageMeta(path)) return null;
   return { "@context": CONTEXT, "@graph": docs(path) };
 }

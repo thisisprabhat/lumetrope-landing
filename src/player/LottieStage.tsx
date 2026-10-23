@@ -115,7 +115,8 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       className={className}
       data-state={state}
       {...(decorative ? { "aria-hidden": true } : { tabIndex: 0, role: "button", "aria-label": alt })}
-      style={{ position: "relative", overflow: "hidden" }}
+      // Fills its box by default, so a consumer that forgets a size class can never get a zero-height stage.
+      style={{ position: "relative", overflow: "hidden", width: "100%", height: "100%" }}
       onFocus={() => hover(true)}
       onBlur={() => hover(false)}
       onKeyDown={(e) => {

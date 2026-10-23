@@ -59,10 +59,22 @@ describe("landing page", () => {
     const nav = within(header).getByRole("navigation");
     expect(within(nav).getByRole("link", { name: "Features" })).toHaveAttribute("href", "/#features");
     expect(within(nav).getByRole("link", { name: "Download" })).toHaveAttribute("href", "/#download");
-    expect(within(nav).getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/docs/getting-started/");
+    const docs = within(nav).getByRole("link", { name: "Docs" });
+    expect(docs).toHaveAttribute("href", "/docs/getting-started/");
+    // Docs stays reachable at every width: no responsive hide class on it
+    expect(docs.className).not.toMatch(/\bhidden\b|min-\[360px\]/);
     const app = within(nav).getByRole("link", { name: "Open web app" });
     expect(app).toHaveAttribute("href", SITE.WEB_APP_URL);
     expect(app.querySelector('[data-src="/animations/cta-open.lottie"]')).toHaveAttribute("data-machine", "Cta");
+  });
+
+  test("hero and features name only platforms the release publishes", () => {
+    const { container } = render(<Landing />);
+    const hero = container.querySelector("section#top")!.textContent!;
+    expect(hero).toContain("macOS (Apple Silicon) and Linux (ARM64)");
+    const feat = container.querySelector("section#features")!.textContent!;
+    expect(feat).toContain("Native desktop builds for macOS (Apple Silicon) and Linux (ARM64)");
+    expect(hero + feat).not.toMatch(/Windows|Intel/);
   });
 
   test("both hero CTAs link correctly and carry a CTA player", () => {

@@ -1,7 +1,7 @@
 {
   "name": "lumetrope-landing",
   "version": "0.1.0",
-  "description": "",
+  "description": "Marketing site and docs for Lumetrope, the open-source Lottie and dotLottie editor.",
   "scripts": {
     "dev": "vite",
     "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist/server && node scripts/prerender.mjs",
@@ -11,12 +11,13 @@
     "sync:release": "node scripts/sync-release.mjs",
     "animations": "node scripts/animations/build.mjs",
     "capture": "node scripts/capture/record.mjs",
+    "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
     "lighthouse": "node scripts/lighthouse.mjs"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",

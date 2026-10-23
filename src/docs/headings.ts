@@ -39,7 +39,6 @@ export const HEADINGS: Record<string, string[]> = {
     "How do I check it works?"
   ],
   "install-linux": [
-    "Which package do I need?",
     "Why is the window blank?",
     "Why do I get a WebAssembly SIMD error?",
     "Where is the MCP server?"
@@ -50,7 +49,6 @@ export const HEADINGS: Record<string, string[]> = {
     "Where does the app keep its data?"
   ],
   "install-windows": [
-    "Which download do I need?",
     "What if SmartScreen warns me?",
     "Do I need anything else?",
     "Where is the MCP server?"

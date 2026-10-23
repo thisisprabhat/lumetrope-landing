@@ -92,3 +92,19 @@ describe("docs", () => {
     expect(container.textContent).toContain("Animate mode");
   });
 });
+
+describe("self-hosting docs", () => {
+  test("the nginx snippet keeps mime.types and scopes types{} to the wasm location", () => {
+    const src = readFileSync("src/docs/pages/web-app.mdx", "utf8");
+    const conf = src.match(/```nginx\n([\s\S]*?)```/)![1];
+    expect(conf).toContain("include mime.types;");
+    expect(conf).toContain("ssl_certificate ");
+    expect(conf).toContain("ssl_certificate_key ");
+    const typesAt = [...conf.matchAll(/types\s*\{/g)].map((m) => m.index!);
+    expect(typesAt).toHaveLength(1);
+    const wasm = conf.indexOf("location ~* \\.wasm$ {");
+    expect(wasm).toBeGreaterThan(-1);
+    expect(typesAt[0]).toBeGreaterThan(wasm);
+    expect(typesAt[0]).toBeLessThan(conf.indexOf("}", conf.indexOf("}", wasm) + 1) + 1);
+  });
+});

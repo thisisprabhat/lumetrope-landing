@@ -5,11 +5,13 @@ import { inflateSync } from "node:zlib";
 import { describe, expect, test } from "vitest";
 import { SITE } from "../src/config/site";
 import { DOCS } from "../src/docs/nav";
+import { operatingSystems, platformsAnswer } from "../src/content/availability";
+import { publishedDownloads } from "../src/config/site";
 import { FAQ } from "../src/content/faq";
 import { encodePng } from "../scripts/png.mjs";
 
 const dist = (p: string) => join("dist", p);
-const paths = ["/", ...DOCS.map((d) => `/docs/${d.slug}/`)];
+const paths = ["/", "/docs/", ...DOCS.map((d) => `/docs/${d.slug}/`)];
 const page = (p: string) => readFileSync(dist(join(p, "index.html")), "utf8");
 const decode = (s: string) =>
   s.replace(/&quot;/g, '"').replace(/&#x27;|&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
@@ -53,7 +55,9 @@ describe("JSON-LD", () => {
     const t = types(page("/"));
     for (const k of ["Organization", "WebSite", "SoftwareApplication", "FAQPage"]) expect(t).toContain(k);
     const app = ld(page("/")).flatMap((b) => b["@graph"] ?? [b]).find((n) => n["@type"] === "SoftwareApplication");
-    expect(app.operatingSystem).toBe("macOS, Windows, Linux, Web");
+    expect(app.operatingSystem).toBe(operatingSystems(publishedDownloads()));
+    expect(app.operatingSystem).not.toContain("Windows");
+    expect(app.downloadUrl).toBe(publishedDownloads().find((d) => d.os === "mac")!.url);
     expect(app.applicationCategory).toBe("DesignApplication");
     expect(app.offers.price).toBe("0");
     expect(app.softwareVersion).toBe(SITE.VERSION);
@@ -66,6 +70,10 @@ describe("JSON-LD", () => {
     const questions: string[] = faq.mainEntity.map((q: any) => q.name);
     expect(questions).toEqual(FAQ.map((f) => f.q));
     for (const q of faq.mainEntity) expect(q.acceptedAnswer.text.length).toBeGreaterThan(0);
+    // the visible FAQ shows exactly the text the FAQPage declares
+    const platforms = faq.mainEntity.find((q: any) => q.name.startsWith("Which platforms")).acceptedAnswer.text;
+    expect(platforms).toBe(platformsAnswer(publishedDownloads()));
+    expect(strip(html)).toContain(platforms.slice(0, 60));
     const summaries = [...html.matchAll(/<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>/g)].map((m) => strip(m[1]));
     expect(summaries).toEqual(expect.arrayContaining(FAQ.map((f) => f.q)));
   });
@@ -127,6 +135,31 @@ describe("crawler files", () => {
     expect(txt).not.toMatch(/^import /m);
     expect(txt).not.toContain("<McpTools");
     expect(txt).not.toMatch(/\{MCP_TOOL_COUNT\}/);
+  });
+
+  test("/docs/ is a real index page listing every doc, and is in the sitemap", () => {
+    const html = page("/docs/");
+    for (const d of DOCS) expect(html).toContain(`href="/docs/${d.slug}/"`);
+    expect(readFileSync(dist("sitemap.xml"), "utf8")).toContain(`<loc>${SITE.SITE_URL}/docs/</loc>`);
+  });
+
+  test("404.html: one h1, links home and to the docs, noindex, not in the sitemap", () => {
+    const html = readFileSync(dist("404.html"), "utf8");
+    expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
+    expect(html).toContain('<meta name="robots" content="noindex"');
+    expect(html).not.toContain('rel="canonical"');
+    expect(html).toMatch(/<main[\s\S]*href="\/"[\s\S]*href="\/docs\/"/);
+    const xml = readFileSync(dist("sitemap.xml"), "utf8");
+    expect(xml).not.toContain("404");
+  });
+
+  test("install pages say up front which builds exist", () => {
+    const win = strip(page("/docs/install-windows/"));
+    expect(win).toMatch(/no published Windows build/);
+    expect(strip(page("/docs/install-macos/"))).toMatch(/macOS builds for Apple Silicon/);
+    const llms = readFileSync(dist("llms-full.txt"), "utf8");
+    expect(llms).toContain("no published Windows build");
+    expect(llms).not.toContain("<Builds");
   });
 
   test("OG images are copied to dist", () => {

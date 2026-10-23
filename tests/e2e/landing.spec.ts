@@ -152,3 +152,13 @@ test.describe("Benefits", () => {
     });
   }
 });
+
+test("the Docs link stays reachable at 320px without horizontal scroll", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto("/");
+  const docs = page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Docs" });
+  await expect(docs).toBeVisible();
+  const box = (await docs.boundingBox())!;
+  expect(box.x + box.width).toBeLessThanOrEqual(320);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
