@@ -6,6 +6,7 @@ import Sidebar from "./Sidebar";
 import Toc, { type TocItem } from "./Toc";
 import { Header } from "../sections/Header";
 import { Footer } from "../sections/Footer";
+import { DOCS_UPDATED } from "../seo/meta";
 import "./docs.css";
 
 const Collector = createContext<TocItem[] | null>(null);
@@ -56,6 +57,7 @@ export default function DocsLayout({ slug, children }: { slug: string; children:
         <main className="min-w-0">
           <MDXProvider components={components}>
             <Collector.Provider value={items}>
+              <p className="mb-2 font-mono text-[11px] uppercase tracking-widest text-text-2">Last updated: <time dateTime={DOCS_UPDATED}>{DOCS_UPDATED}</time></p>
               <article className="docs-prose max-w-3xl">{children}</article>
             </Collector.Provider>
           </MDXProvider>
