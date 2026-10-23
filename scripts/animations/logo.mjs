@@ -22,8 +22,7 @@ export function build() {
     d.addLine("Slits", [[x0 - 20, y0 - 20], [x1 - 20, y1 - 20]], C.bg0, 3.2);
   }
 
-    d.track(l, "rotation", [[0, 0, "linear"], [59, 354, "hold"], [60, 0, "linear"], [89, 696, "hold"]]);
-  }
+  d.track("Slits", "rotation", [[0, 0, "linear"], [59, 354, "hold"], [60, 0, "linear"], [89, 696, "hold"]]);
 
   const m = d.machine("Logo");
   d.input(m, "hover", "boolean", false);
