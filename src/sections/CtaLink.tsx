@@ -30,14 +30,15 @@ export function CtaLink({ href, children, variant = "primary", glyph = "download
   return (
     <a
       href={href}
-      className={`cta-link group inline-flex items-center whitespace-nowrap gap-1.5 rounded-full font-semibold transition-[filter,border-color,transform] duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan ${small ? "py-1.5 pl-4 pr-4 min-[400px]:pl-1.5" : "py-2 pl-2.5 pr-6 text-base"} ${VARIANT[variant]} ${className}`}
+      className={`cta-link group inline-flex max-w-full items-center gap-1.5 rounded-full font-semibold transition-[filter,border-color,transform] duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan ${small ? "py-1.5 pl-4 pr-4 min-[400px]:pl-1.5" : "py-2 pl-2.5 pr-6 text-base"} ${VARIANT[variant]} ${className}`}
       {...handlers}
       onClick={() => { stage.current?.fire("press"); onPress?.(); }}
     >
       <span aria-hidden="true" className={`relative shrink-0 transition-transform duration-200 group-hover:scale-110 group-active:scale-95 ${small ? "hidden h-6 w-10 min-[400px]:block" : "h-8 w-[3.25rem]"}`}>
         <LottieStage ref={stage} decorative src={CTA.src} poster={CTA.poster} stateMachine="Cta" alt="" fit="contain" inputs={inputs} className="h-full w-full" />
       </span>
-      <span>{children}</span>
+      {/* Labels stay on one line where they fit and wrap rather than overflow on narrow phones. */}
+      <span className={small ? "whitespace-nowrap" : "min-w-0 leading-snug [text-wrap:balance]"}>{children}</span>
     </a>
   );
 }

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-23T15:36:21.108Z",
+  "date": "2026-10-23T15:39:17.704Z",
   "base": "http://localhost:4180",
   "formFactor": "mobile",
   "runs": 3,
@@ -12,14 +12,14 @@
   "pages": {
     "/": {
       "scores": {
-        "performance": 0.92,
+        "performance": 0.91,
         "accessibility": 0.96,
         "best-practices": 1,
         "seo": 1
       },
       "allRuns": [
         0.91,
-        0.92,
+        0.91,
         0.92
       ],
       "audits": {
@@ -31,7 +31,7 @@
       },
       "initialJs": {
         "files": [
-          "/assets/index-BpdUqjHd.js"
+          "/assets/index-DS0xqMbd.js"
         ],
         "gzipKB": 110.7
       },
@@ -58,7 +58,7 @@
       },
       "initialJs": {
         "files": [
-          "/assets/index-BpdUqjHd.js"
+          "/assets/index-DS0xqMbd.js"
         ],
         "gzipKB": 110.7
       },
