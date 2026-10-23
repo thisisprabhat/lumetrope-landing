@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { LottieStage } from "../player/LottieStage";
 import media from "./media.json";
 import { art } from "./art";
+import { SHOT_SIZES, shotSrcSet } from "./shots";
 
 const ICON = art("icon-timeline");
 const SHOTS = media.shots;
@@ -66,6 +67,8 @@ export function Carousel() {
                 <div className="film">
                   <img
                     src={s.src}
+                    srcSet={shotSrcSet(s.src)}
+                    sizes={SHOT_SIZES}
                     alt={s.alt}
                     width={1440}
                     height={900}

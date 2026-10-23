@@ -8,6 +8,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "sync:engine": "node scripts/sync-engine.mjs",
+    "sync:release": "node scripts/sync-release.mjs",
     "animations": "node scripts/animations/build.mjs",
     "capture": "node scripts/capture/record.mjs",
     "e2e": "playwright test",

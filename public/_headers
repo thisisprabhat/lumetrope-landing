@@ -1,0 +1,34 @@
+# Netlify / Cloudflare Pages headers for the static dist/.
+# Rules are merged when several match, so HTML and hashed assets use disjoint patterns.
+
+# Hashed build output (JS, CSS, fonts, the WASM engine): cache forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+# The engine must be served as application/wasm, or streaming compilation falls back (or fails).
+/assets/*.wasm
+  Content-Type: application/wasm
+
+# Pre-rendered pages: always revalidate so a deploy is picked up at once.
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/docs/*
+  Cache-Control: no-cache
+
+# Unhashed media (animations, posters, screenshots, video, social cards): cache for a day.
+/animations/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/posters/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/media/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/og/*
+  Cache-Control: public, max-age=86400
+
+# Every response.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

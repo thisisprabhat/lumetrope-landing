@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import type { LumetropePlayer } from "./LumetropePlayer";
+import { afterFirstPaint } from "./startGate";
 
 export interface StageHandle {
   setInput(name: string, v: boolean | number | string): void;
@@ -48,10 +49,15 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
     let cancelled = false;
     let loading = false;
     const reduced = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const load = () => {
+    /** `now`: an explicit click/keypress starts straight away instead of waiting for idle. */
+    const load = (now = false) => {
       if (loading || cancelled) return;
       loading = true;
-      import("./LumetropePlayer")
+      (now ? Promise.resolve() : afterFirstPaint())
+        .then(() => {
+          if (cancelled) throw new Error("unmounted");
+          return import("./LumetropePlayer");
+        })
         .then(({ LumetropePlayer }) => LumetropePlayer.create(canvas.current!, { src, stateMachine, fit, onState: (s) => { setState(s); onStateRef.current?.(s); } }))
         .then((p) => {
           if (cancelled || !canvas.current) return p.destroy();
@@ -64,7 +70,7 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
           loading = false; // poster stays; WASM or fetch unavailable
         });
     };
-    start.current = load;
+    start.current = () => load(true);
     let io: IntersectionObserver | undefined;
     const onVisible = (v: boolean) => {
       visible.current = v;
@@ -78,13 +84,12 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       const id = setTimeout(() => onVisible(true), 200);
       io = { disconnect: () => clearTimeout(id) } as IntersectionObserver;
     }
-    let kick = 0;
-    if (priority && !reduced) kick = window.setTimeout(() => requestAnimationFrame ? requestAnimationFrame(load) : load(), 0);
+    // The hero player starts without waiting for the observer (still after first paint and idle).
+    if (priority && !reduced) load();
     const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => player.current?.resize()) : null;
     ro?.observe(root.current!);
     return () => {
       cancelled = true;
-      clearTimeout(kick);
       setShown(false);
       setState("");
       io?.disconnect();

@@ -1,7 +1,6 @@
 // Asserts on the built output in dist/ (built once by tests/global-build.ts).
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { inflateSync } from "node:zlib";
 import { describe, expect, test } from "vitest";
 import { SITE } from "../src/config/site";
@@ -137,7 +136,8 @@ describe("crawler files", () => {
 
 describe("no-JS: server-rendered landing", () => {
   test("every section heading and nav link of the SSR landing is in the prerendered HTML", async () => {
-    const { render } = await import(pathToFileURL(join(process.cwd(), "dist/server/entry-server.js")).href);
+    // dist/server is removed after prerendering, so render the same SSR entry from source.
+    const { render } = await import("../src/entry-server");
     const ssr: string = render("/").html;
     const html = page("/");
     const headings = [...ssr.matchAll(/<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/g)].map((m) => strip(m[1]));

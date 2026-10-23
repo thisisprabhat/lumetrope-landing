@@ -28,6 +28,15 @@ describe("media.json", () => {
     if (media.video.mp4) refs.push(media.video.mp4);
     for (const r of refs) expect(existsSync(join(pub, r)), r).toBe(true);
   });
+  it("every shot has its 960/1440 responsive variants", () => {
+    for (const s of media.shots) {
+      for (const w of [960, 1440]) {
+        const v = s.src.replace(/\.webp$/, `-${w}.webp`);
+        expect(existsSync(join(pub, v)), v).toBe(true);
+        expect(statSync(join(pub, v)).size, v).toBeLessThan(statSync(join(pub, s.src)).size);
+      }
+    }
+  });
   it("total size under 15 MB", () => {
     const total = files(join(pub, "media")).reduce((n, f) => n + statSync(f).size, 0);
     expect(total).toBeLessThan(15 * 1024 * 1024);

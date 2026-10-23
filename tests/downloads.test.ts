@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SITE, downloads, primaryDownload } from "../src/config/site";
+import { RELEASE, SITE, archName, archsFor, downloads, intelMacMissing, primaryDownload, primaryLabel, publishedDownloads, type Release } from "../src/config/site";
 import { detectPlatform, detectPlatformAsync } from "../src/lib/platform";
 
 const list = downloads("0.1.0");
@@ -13,9 +13,73 @@ describe("downloads", () => {
   it("windows arm64", () => expect(pick("windows", "arm64")?.file).toBe("Lumetrope_0.1.0_arm64-setup.exe"));
   it("linux unknown -> amd64.deb", () => expect(pick("linux", "unknown")?.file).toBe("Lumetrope_0.1.0_amd64.deb"));
   it("other -> null", () => expect(pick("other", "unknown")).toBeNull());
+  it("unknown linux arch never gets an arm64-only build", () => {
+    const arm = list.filter((d) => d.arch === "arm64");
+    expect(primaryDownload({ os: "linux", arch: "unknown" }, arm)).toBeNull();
+    expect(primaryDownload({ os: "linux", arch: "arm64" }, arm)?.file).toBe("Lumetrope_0.1.0_arm64.deb");
+  });
+  it("a known arch with no build of its own gets no primary (Intel Mac, arm-only release)", () => {
+    const arm = list.filter((d) => d.arch === "arm64");
+    expect(primaryDownload({ os: "mac", arch: "x64" }, arm)).toBeNull();
+    expect(primaryDownload({ os: "mac", arch: "unknown" }, arm)?.file).toBe("Lumetrope_0.1.0_aarch64.dmg");
+    expect(primaryDownload({ os: "windows", arch: "x64" }, arm)).toBeNull();
+  });
   it("urls", () => {
-    expect(list.length).toBe(10);
+    expect(list.length).toBe(11);
     for (const d of list) expect(d.url.startsWith(`${SITE.REPO_URL}/releases/download/v0.1.0/`)).toBe(true);
+  });
+});
+
+describe("Review Focus 4: never a dead or wrong primary button", () => {
+  const arm = list.filter((d) => d.arch === "arm64"); // what v0.1.0 actually ships
+  it("unknown-arch Mac (Safari/Firefox) gets the Apple Silicon dmg, labelled as Apple Silicon", () => {
+    const p = primaryDownload({ os: "mac", arch: "unknown" }, arm)!;
+    expect(p.file).toBe("Lumetrope_0.1.0_aarch64.dmg");
+    expect(primaryLabel(p)).toBe("Download for macOS (Apple Silicon)");
+  });
+  it("labels always name the architecture", () => {
+    expect(primaryLabel(pick("mac", "x64")!)).toBe("Download for macOS (Intel)");
+    expect(primaryLabel(pick("windows", "x64")!)).toBe("Download for Windows (x64)");
+    expect(primaryLabel(pick("linux", "arm64")!)).toBe("Download for Linux (ARM64)");
+  });
+  it("flags the missing Intel build for Intel and unknown-arch Macs, not for Apple Silicon", () => {
+    expect(intelMacMissing({ os: "mac", arch: "unknown" }, arm)).toBe(true);
+    expect(intelMacMissing({ os: "mac", arch: "x64" }, arm)).toBe(true);
+    expect(intelMacMissing({ os: "mac", arch: "arm64" }, arm)).toBe(false);
+    expect(intelMacMissing({ os: "windows", arch: "x64" }, arm)).toBe(false);
+    expect(intelMacMissing(null, arm)).toBe(false);
+    // once an Intel dmg is published the note goes away
+    expect(intelMacMissing({ os: "mac", arch: "unknown" }, list)).toBe(false);
+  });
+  it("names the architectures a release covers per OS", () => {
+    expect(archsFor("mac", arm)).toEqual(["Apple Silicon"]);
+    expect(archsFor("mac", list)).toEqual(["Apple Silicon", "Intel"]);
+    expect(archsFor("windows", arm)).toEqual(["ARM64"]);
+    expect(archsFor("linux", list)).toEqual(["x64", "ARM64"]);
+    expect(archName({ os: "linux", arch: "x64" })).toBe("x64");
+  });
+});
+
+describe("release snapshot", () => {
+  it("is for the repo and version in site.ts", () => {
+    expect(SITE.REPO_URL).toBe(`https://github.com/${RELEASE.repo}`);
+    expect(RELEASE.tag).toBe(`v${SITE.VERSION}`);
+  });
+  it("only published assets are offered, with sizes", () => {
+    const pub = publishedDownloads();
+    expect(pub.length).toBeGreaterThan(0);
+    const names = new Set(RELEASE.assets.map((a) => a.name));
+    for (const d of pub) {
+      expect(names.has(d.file), d.file).toBe(true);
+      expect(d.size).toBeGreaterThan(0);
+    }
+  });
+  it("filters the catalogue by asset name", () => {
+    const rel: Release = { repo: "x/y", tag: "v0.1.0", url: "", publishedAt: "", assets: [{ name: "Lumetrope_0.1.0_x64-setup.exe", size: 5 }] };
+    expect(publishedDownloads("0.1.0", rel).map((d) => d.file)).toEqual(["Lumetrope_0.1.0_x64-setup.exe"]);
+  });
+  it("offers nothing when the snapshot is for another version", () => {
+    expect(publishedDownloads("9.9.9")).toEqual([]);
   });
 });
 

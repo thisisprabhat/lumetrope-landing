@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LottieStage, type StageHandle } from "../player/LottieStage";
 import { art } from "./art";
 
@@ -11,6 +11,9 @@ const BENEFITS = [
   { title: "AI-ready", body: "Connect an agent over MCP and it can build layers, set keyframes and test state machines while you direct." },
 ];
 
+/** Benefit index for a progress value; the same 0.25 bands the Zoetrope machine's B1..B4 guards use. */
+const benefitAt = (p: number) => Math.min(BENEFITS.length - 1, Math.floor(p * BENEFITS.length));
+
 /** Progress of the section's middle line through the section, 0..1. */
 function progressOf(el: HTMLElement) {
   const r = el.getBoundingClientRect();
@@ -20,19 +23,22 @@ function progressOf(el: HTMLElement) {
 
 export function Benefits() {
   const sec = useRef<HTMLElement>(null);
+  // One source of truth: the text highlight and the zoetrope's `progress` input both come from this.
+  // Passing it as `inputs` means the player also gets it when it starts after the last scroll event.
+  const [progress, setProgress] = useState(0);
+  const active = benefitAt(progress);
+  const inputs = useMemo(() => ({ progress }), [progress]);
   const zoe = useRef<StageHandle>(null);
-  const [active, setActive] = useState(0);
-  const last = useRef(0);
+  const last = useRef(progress);
+  last.current = progress;
 
   useEffect(() => {
     let queued = false;
     const update = () => {
       queued = false;
-      if (!sec.current) return;
-      const p = Math.round(progressOf(sec.current) * 1000) / 1000;
-      last.current = p;
-      zoe.current?.setInput("progress", p);
-      setActive(Math.min(BENEFITS.length - 1, Math.floor(p * BENEFITS.length)));
+      // Whole percent steps: React bails out when the value is unchanged, so the section and its
+      // player only re-render about a hundred times across the whole section, not every frame.
+      if (sec.current) setProgress(Math.round(progressOf(sec.current) * 100) / 100);
     };
     const onScroll = () => {
       if (queued) return;
@@ -58,11 +64,12 @@ export function Benefits() {
           </p>
           <div className="relative mt-8 aspect-[720/420] w-full">
             <LottieStage
-              ref={zoe}
               src={ZOE.src}
               poster={ZOE.poster}
               stateMachine="Zoetrope"
-              // The player may start after the last scroll event: re-apply progress once it reports a state.
+              inputs={inputs}
+              ref={zoe}
+              // A click-spin hands back to B1: re-apply progress so the drum returns to the highlighted benefit.
               onState={() => zoe.current?.setInput("progress", last.current)}
               alt="A zoetrope that turns as you scroll. Click to spin it."
               className="h-full w-full"

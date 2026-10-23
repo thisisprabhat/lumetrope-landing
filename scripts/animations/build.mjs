@@ -6,12 +6,14 @@ import { readdirSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ROOT, initEngine, writeAnimation } from "./lib.mjs";
+import { compressPosters } from "./compress-posters.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const only = new Set(process.argv.slice(2));
-const skip = new Set(["build.mjs", "lib.mjs", "preview.mjs"]);
+const skip = new Set(["build.mjs", "lib.mjs", "preview.mjs", "compress-posters.mjs"]);
 
 await initEngine();
+const built = [];
 for (const file of readdirSync(here).filter((f) => f.endsWith(".mjs") && !skip.has(f)).sort()) {
   const mod = await import(pathToFileURL(join(here, file)).href);
   if (typeof mod.build !== "function" || !mod.name) continue;
@@ -19,5 +21,7 @@ for (const file of readdirSync(here).filter((f) => f.endsWith(".mjs") && !skip.h
   const doc = mod.build();
   const out = writeAnimation(mod.name, doc, mod.options);
   doc.e.free();
+  built.push(mod.name);
   console.log(`${relative(ROOT, out.anim)}  ${relative(ROOT, out.poster)}`);
 }
+await compressPosters(built);

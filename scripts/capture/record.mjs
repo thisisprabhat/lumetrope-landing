@@ -8,6 +8,7 @@
 // Privacy: displayed absolute paths are rewritten in-page, and every shot
 // asserts that document.body.innerText holds neither the home dir nor the username.
 import { chromium } from "@playwright/test";
+import { writeVariants } from "./variants.mjs";
 import { mkdirSync, rmSync, renameSync, writeFileSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import os from "node:os";
@@ -206,6 +207,7 @@ try {
     writeFileSync(join(shotsDir, `${name}.webp`), Buffer.from(b64, "base64"));
   }
   await ectx.close();
+  await writeVariants(browser, shotsDir);
 
   const poster = shots.find((s) => s.name === "timeline").src;
   const json = { shots: shots.map(({ src, alt, caption }) => ({ src, alt, caption })), video: { webm: "/media/tour.webm", poster } };

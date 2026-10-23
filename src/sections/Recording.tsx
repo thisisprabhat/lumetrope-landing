@@ -1,6 +1,7 @@
 import { LottieStage } from "../player/LottieStage";
 import media from "./media.json";
 import { art } from "./art";
+import { shotVariant } from "./shots";
 
 const REEL = art("logo");
 const video = media.video as { webm: string; mp4?: string; poster: string };
@@ -27,7 +28,8 @@ export function Recording() {
             controls
             preload="none"
             playsInline
-            poster={video.poster}
+            // A video poster loads eagerly and has no srcset: use the 1440 px variant.
+            poster={shotVariant(video.poster, 1440)}
             width={1440}
             height={900}
             aria-label="Tour of the Lumetrope editor"
