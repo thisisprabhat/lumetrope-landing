@@ -1,6 +1,7 @@
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { LottieStage, type StageHandle } from "../player/LottieStage";
 import { art } from "./art";
+import { useHoverInput } from "./useHoverInput";
 
 const CTA = art("cta");
 
@@ -18,17 +19,13 @@ export function CtaLink({ href, children, variant = "primary", onPress, classNam
   href: string; children: ReactNode; variant?: keyof typeof VARIANT; onPress?: () => void; className?: string;
 }) {
   const stage = useRef<StageHandle>(null);
-  const [hover, setHover] = useState(false);
-  const inputs = useMemo(() => ({ hover }), [hover]);
+  const { inputs, handlers } = useHoverInput();
   const small = variant === "nav";
   return (
     <a
       href={href}
       className={`cta-link group inline-flex items-center whitespace-nowrap gap-3 rounded-full font-semibold transition-[filter,border-color] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan ${small ? "py-1.5 pl-4 pr-4 min-[400px]:py-1 min-[400px]:pl-1" : "py-1.5 pl-1.5 pr-6 text-base"} ${VARIANT[variant]} ${className}`}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
+      {...handlers}
       onClick={() => { stage.current?.fire("press"); onPress?.(); }}
     >
       <span aria-hidden="true" className={`relative shrink-0 overflow-hidden rounded-full bg-bg-0 ${small ? "hidden h-7 w-12 min-[400px]:block" : "h-10 w-16"}`}>

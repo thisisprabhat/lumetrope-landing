@@ -30,6 +30,7 @@ export function Carousel() {
 
         <div
           data-carousel-viewport
+          role="region"
           tabIndex={0}
           aria-label="Screenshots. Use the left and right arrow keys to move between them."
           className="mt-10 touch-pan-y overflow-hidden rounded-lg outline-none ring-offset-4 ring-offset-bg-0 focus-visible:ring-2 focus-visible:ring-cyan"
@@ -50,7 +51,6 @@ export function Carousel() {
           onPointerCancel={() => { startX.current = null; }}
         >
           <div
-            aria-live="polite"
             className="flex transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none"
             style={{ transform: `translateX(-${i * 100}%)` }}
           >
@@ -83,6 +83,8 @@ export function Carousel() {
             ))}
           </div>
         </div>
+
+        <p className="sr-only" aria-live="polite" aria-atomic="true">{`Slide ${i + 1} of ${n}: ${SHOTS[i].caption}`}</p>
 
         <div className="mt-6 flex items-center justify-between gap-4">
           <ol className="flex flex-wrap gap-1.5" aria-label="Choose a screenshot">

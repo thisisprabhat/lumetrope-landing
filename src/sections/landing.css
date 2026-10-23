@@ -94,3 +94,25 @@
 @media (prefers-reduced-motion: reduce) {
   .feature, .benefit, .benefit h3 { transition: none; }
 }
+
+/* FAQ open/close mark: a CSS plus that turns into a cross, so the summary's text is only the question. */
+.faq-mark {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s;
+}
+.faq-mark::before,
+.faq-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--lume);
+  border-radius: 1px;
+}
+.faq-mark::before { left: 0; right: 0; top: 5px; height: 2px; }
+.faq-mark::after { top: 0; bottom: 0; left: 5px; width: 2px; }
+.faq[open] .faq-mark { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) {
+  .faq-mark { transition: none; }
+}

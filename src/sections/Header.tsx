@@ -1,25 +1,21 @@
-import { useMemo, useState } from "react";
 import { SITE } from "../config/site";
 import { LottieStage } from "../player/LottieStage";
 import { CtaLink } from "./CtaLink";
 import { art } from "./art";
+import { useHoverInput } from "./useHoverInput";
 
 const LOGO = art("logo");
 const link = "rounded px-2 py-1 text-sm text-text-1 transition-colors hover:text-text-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan";
 
 export function Header() {
-  const [hover, setHover] = useState(false);
-  const inputs = useMemo(() => ({ hover }), [hover]);
+  const { inputs, handlers } = useHoverInput();
   return (
     <header className="sticky top-0 z-30 border-b border-bg-3/80 bg-bg-0/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <a
           href="/"
           className="flex shrink-0 items-center gap-2.5 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan"
-          onPointerEnter={() => setHover(true)}
-          onPointerLeave={() => setHover(false)}
-          onFocus={() => setHover(true)}
-          onBlur={() => setHover(false)}
+          {...handlers}
         >
           <span className="relative block h-8 w-8 shrink-0">
             <LottieStage decorative src={LOGO.src} poster={LOGO.poster} stateMachine="Logo" alt="" inputs={inputs} className="h-full w-full" />

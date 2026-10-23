@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
 import { LottieStage } from "../player/LottieStage";
 import { art } from "./art";
+import { useHoverInput } from "./useHoverInput";
 
 type Feature = { icon: string; title: string; body: string; href?: string; more?: string };
 
@@ -16,8 +16,7 @@ export const FEATURES: Feature[] = [
 ];
 
 function Card({ f }: { f: Feature }) {
-  const [hover, setHover] = useState(false);
-  const inputs = useMemo(() => ({ hover }), [hover]);
+  const { hover, inputs, handlers } = useHoverInput();
   const a = art(`icon-${f.icon}`);
   const inner = (
     <>
@@ -31,12 +30,11 @@ function Card({ f }: { f: Feature }) {
   );
   return (
     <li
-      className="feature relative bg-bg-0 p-6 sm:p-7"
+      className="feature relative bg-bg-0 p-6 outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan sm:p-7"
       data-hover={hover || undefined}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
+      // Cards without a link are focusable themselves so keyboard users can wake the icon too.
+      tabIndex={f.href ? undefined : 0}
+      {...handlers}
     >
       {f.href ? (
         <a href={f.href} className="group block rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-cyan">{inner}</a>

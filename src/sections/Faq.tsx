@@ -23,7 +23,7 @@ export function Faq() {
             <details key={f.q} className="faq group border-b border-bg-3">
               <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-lg text-text-0 marker:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan [&::-webkit-details-marker]:hidden">
                 <span>{f.q}</span>
-                <span aria-hidden="true" className="mt-1 font-mono text-sm text-lume transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none">+</span>
+                <span aria-hidden="true" className="faq-mark mt-1.5 shrink-0" />
               </summary>
               <p className="max-w-2xl pb-6 leading-relaxed text-text-1">{f.a}</p>
             </details>

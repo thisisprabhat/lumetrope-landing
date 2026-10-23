@@ -111,6 +111,62 @@ describe("landing page", () => {
     expect(JSON.parse(icon.getAttribute("data-inputs")!)).toEqual({ hover: false });
   });
 
+  test("touch tap drives a feature icon's hover even though pointerleave follows pointerup", () => {
+    vi.useFakeTimers();
+    const { container } = render(<Landing />);
+    const icon = container.querySelector('[data-src="/animations/icon-themes.lottie"]')!;
+    const card = icon.closest("li")!;
+    const hover = () => JSON.parse(icon.getAttribute("data-inputs")!).hover;
+    // the browser's tap sequence for a touch pointer
+    fireEvent.pointerEnter(card, { pointerType: "touch" });
+    fireEvent.pointerDown(card, { pointerType: "touch" });
+    fireEvent.pointerUp(card, { pointerType: "touch" });
+    fireEvent.pointerLeave(card, { pointerType: "touch" });
+    expect(hover()).toBe(true);
+    act(() => { vi.advanceTimersByTime(600); });
+    expect(hover()).toBe(true);
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(hover()).toBe(false);
+  });
+
+  test("feature cards are keyboard-focusable and focus drives hover", () => {
+    const { container } = render(<Landing />);
+    const cards = container.querySelectorAll("section#features li");
+    expect(cards).toHaveLength(8);
+    for (const c of cards) {
+      // the MCP card is focusable through its link, the other seven themselves
+      const focusable = c.getAttribute("tabindex") === "0" || c.querySelector("a[href]") !== null;
+      expect(focusable).toBe(true);
+    }
+    const icon = container.querySelector('[data-src="/animations/icon-wasm-engine.lottie"]')!;
+    const card = icon.closest("li") as HTMLElement;
+    expect(card).toHaveAttribute("tabindex", "0");
+    act(() => card.focus());
+    expect(JSON.parse(icon.getAttribute("data-inputs")!)).toEqual({ hover: true });
+    act(() => card.blur());
+    expect(JSON.parse(icon.getAttribute("data-inputs")!)).toEqual({ hover: false });
+  });
+
+  test("CTA: a touch tap pulses hover, focus drives it", () => {
+    vi.useFakeTimers();
+    const { container } = render(<Landing />);
+    const hero = container.querySelector("section#top") as HTMLElement;
+    const web = within(hero).getByRole("link", { name: "Open the web app" });
+    const chip = web.querySelector('[data-src="/animations/cta.lottie"]')!;
+    const hover = () => JSON.parse(chip.getAttribute("data-inputs")!).hover;
+    fireEvent.pointerEnter(web, { pointerType: "touch" });
+    fireEvent.pointerDown(web, { pointerType: "touch" });
+    fireEvent.pointerUp(web, { pointerType: "touch" });
+    fireEvent.pointerLeave(web, { pointerType: "touch" });
+    expect(hover()).toBe(true);
+    act(() => { vi.advanceTimersByTime(1600); });
+    expect(hover()).toBe(false);
+    act(() => web.focus());
+    expect(hover()).toBe(true);
+    act(() => web.blur());
+    expect(hover()).toBe(false);
+  });
+
   test("every <section> contains a LottieStage", () => {
     const { container } = render(<Landing />);
     const sections = container.querySelectorAll("section");
@@ -126,7 +182,8 @@ describe("landing page", () => {
     const details = container.querySelectorAll("section#faq details");
     expect(details).toHaveLength(FAQ.length);
     FAQ.forEach((f, i) => {
-      expect(details[i].querySelector("summary")).toHaveTextContent(f.q);
+      // exact: no decorative text in the summary (FAQPage JSON-LD and the prerender test compare it)
+      expect(details[i].querySelector("summary")!.textContent).toBe(f.q);
       expect(details[i]).toHaveTextContent(f.a);
     });
   });
@@ -150,8 +207,15 @@ describe("landing page", () => {
     const current = () => [...slides].findIndex((s) => s.getAttribute("aria-hidden") !== "true");
     expect(current()).toBe(0);
     const viewport = car.querySelector("[data-carousel-viewport]") as HTMLElement;
+    expect(viewport).toHaveAttribute("role", "region");
+    expect(viewport).toHaveAccessibleName();
+    // only a small status node is live, not the whole track
+    const live = car.querySelectorAll("[aria-live]");
+    expect(live).toHaveLength(1);
+    expect(live[0].querySelector("figure, img")).toBeNull();
     fireEvent.keyDown(viewport, { key: "ArrowRight" });
     expect(current()).toBe(1);
+    expect(live[0].textContent).toBe(`Slide 2 of 8: ${slides[1].querySelector("figcaption span:last-child")!.textContent}`);
     fireEvent.keyDown(viewport, { key: "ArrowLeft" });
     fireEvent.keyDown(viewport, { key: "ArrowLeft" });
     expect(current()).toBe(7); // wraps
