@@ -1,0 +1,20 @@
+// Reads dist/ produced by `pnpm build`; run the build first (global setup runs it if dist is missing).
+import { existsSync, readFileSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { beforeAll, expect, test } from "vitest";
+
+beforeAll(() => {
+  if (!existsSync("dist/index.html")) execSync("pnpm build", { stdio: "inherit" });
+}, 180000);
+
+test("landing is pre-rendered", () => {
+  const html = readFileSync("dist/index.html", "utf8");
+  expect(html).toContain('<html lang="en"');
+  expect(html).toContain("<h1");
+  expect(html).toContain("Lumetrope");
+});
+
+test("docs page is pre-rendered", () => {
+  expect(existsSync("dist/docs/getting-started/index.html")).toBe(true);
+  expect(readFileSync("dist/docs/getting-started/index.html", "utf8")).toContain("<h1");
+});
