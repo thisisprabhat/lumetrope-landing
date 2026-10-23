@@ -3,7 +3,7 @@ import { SITE, downloads, primaryDownload, type DownloadOS } from "../config/sit
 import { detectPlatform, detectPlatformAsync, type Platform } from "../lib/platform";
 
 const GROUPS: { os: DownloadOS; name: string; glyph: string; req: string; docs: string }[] = [
-  { os: "mac", name: "macOS", glyph: "⌘", req: "macOS 11+ · Apple Silicon and Intel", docs: "/docs/install-macos/" },
+  { os: "mac", name: "macOS", glyph: "◆", req: "macOS 11+ · Apple Silicon and Intel", docs: "/docs/install-macos/" },
   { os: "windows", name: "Windows", glyph: "▦", req: "Windows 10/11 + WebView2", docs: "/docs/install-windows/" },
   { os: "linux", name: "Linux", glyph: "›_", req: "WebKitGTK 4.1 ≥ 2.40", docs: "/docs/install-linux/" },
 ];
@@ -28,7 +28,7 @@ export function Downloads() {
         Version <span className="font-mono text-text-0">{SITE.VERSION}</span>. Free and open source.
       </p>
 
-      <div className="mt-8 flex flex-wrap items-center gap-4" data-testid="primary-download">
+      <div className="mt-8 flex min-h-[7.5rem] flex-wrap content-start items-center gap-4 sm:min-h-[3.5rem]" data-testid="primary-download">
         {primary && (
           <a href={primary.url} className="rounded-lg bg-lume px-6 py-3 font-semibold text-bg-0 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan">
             Download for {OS_NAME[primary.os]} <span className="font-mono text-sm">({primary.label})</span>

@@ -2,6 +2,7 @@ export type Platform = { os: "mac" | "windows" | "linux" | "other"; arch: "arm64
 export type NavLike = {
   userAgent?: string;
   platform?: string;
+  maxTouchPoints?: number;
   userAgentData?: { platform?: string; getHighEntropyValues?: (h: string[]) => Promise<Record<string, unknown>> };
 };
 
@@ -16,9 +17,10 @@ export function detectPlatform(nav: NavLike): Platform {
   else if (/linux|x11/i.test(all)) os = "linux";
   else if (/Macintosh/.test(ua)) os = "mac";
   else if (/Windows/.test(ua)) os = "windows";
+  if (os === "mac" && (nav.maxTouchPoints ?? 0) > 1) return { os: "other", arch: "unknown" }; // iPadOS desktop-mode Safari
   if (os === "other") return { os, arch: "unknown" };
   let arch: Platform["arch"] = "unknown";
-  if (/arm64|aarch64|\bARM\b/i.test(ua) || /arm|aarch64/i.test(nav.platform ?? "")) arch = "arm64";
+  if (/arm64|aarch64|\bARM\b/i.test(ua) || /arm64|aarch64|armv8/i.test(nav.platform ?? "")) arch = "arm64";
   else if (os !== "mac" && /x86_64|x64|Win64|amd64|x86/i.test(`${ua} ${nav.platform ?? ""}`)) arch = "x64";
   else if (os === "windows") arch = "x64";
   return { os, arch };
