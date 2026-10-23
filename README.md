@@ -76,6 +76,9 @@ Ready-made configs:
   duplicate-extension warning (checked with nginx 1.31). It gzips JS (`text/javascript` and
   `application/javascript`), CSS, SVG and wasm, caches `/assets/` immutably, serves pages with
   no-cache and uses `try_files $uri $uri/index.html`. Copy `dist/` to its `root`.
+- **Docker / Coolify:** the `Dockerfile` builds the site and serves it with nginx on port 80 using
+  `deploy/nginx.conf`. The canonical host is `lumetrope.waygosquad.tech` (`SITE_URL`), and
+  `lumetrope.waygosquad.com` gets a 301 redirect to it. The Coolify proxy terminates TLS.
 
 After deploying, validate the structured data with Google's Rich Results Test and
 validator.schema.org.

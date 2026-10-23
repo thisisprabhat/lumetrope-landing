@@ -1,7 +1,7 @@
 import release from "../content/release.json";
 
 export const SITE = {
-  SITE_URL: "https://lumetrope.app",
+  SITE_URL: "https://lumetrope.waygosquad.tech",
   REPO_URL: "https://github.com/thisisprabhat/lumetrope",
   VERSION: "0.1.1",
   WEB_APP_URL: "https://app.lumetrope.waygosquad.tech/",

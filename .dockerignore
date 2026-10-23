@@ -1,0 +1,9 @@
+node_modules
+dist
+reports
+test-results
+playwright-report
+.capture-tmp
+.superpowers
+.git
+.DS_Store
