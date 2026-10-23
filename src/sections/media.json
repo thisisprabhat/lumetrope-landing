@@ -1,48 +1,48 @@
 {
   "shots": [
     {
-      "src": "/media/shots/dashboard.jpg",
+      "src": "/media/shots/dashboard.webp",
       "alt": "The Lumetrope dashboard with canvas presets, sample projects and an MCP entry.",
       "caption": "Start from a preset size or a ready-made interactive sample."
     },
     {
-      "src": "/media/shots/draw.jpg",
+      "src": "/media/shots/draw.webp",
       "alt": "A new project in the Lumetrope editor with a rectangle, ellipse and star drawn on the canvas.",
       "caption": "Draw shapes on the canvas with the vector tools."
     },
     {
-      "src": "/media/shots/timeline.jpg",
-      "alt": "The Lumetrope timeline showing keyframes per layer and named animation segments.",
-      "caption": "Keyframes, segments and easing live on a precise timeline."
+      "src": "/media/shots/timeline.webp",
+      "alt": "The Lumetrope timeline with keyframes per property and the easing curve editor open on a keyframe.",
+      "caption": "Keyframes, segments and easing curves on a precise timeline."
     },
     {
-      "src": "/media/shots/state-machine.jpg",
+      "src": "/media/shots/state-machine.webp",
       "alt": "The state machine graph with colour-coded state nodes and transitions.",
       "caption": "Wire states and transitions on a colour-coded graph."
     },
     {
-      "src": "/media/shots/preview.jpg",
+      "src": "/media/shots/preview.webp",
       "alt": "Preview mode where clicking the artwork drives the state machine.",
       "caption": "Preview it: clicks and hovers drive the states for real."
     },
     {
-      "src": "/media/shots/export.jpg",
+      "src": "/media/shots/export.webp",
       "alt": "The export dialog offering GIF, WebP and WebM output.",
       "caption": "Export to Lottie, GIF, WebP and WebM."
     },
     {
-      "src": "/media/shots/mcp.jpg",
-      "alt": "The MCP dialog explaining how to connect an AI agent to the editor.",
+      "src": "/media/shots/mcp.webp",
+      "alt": "The MCP dialog with ready-to-copy commands for connecting an AI agent to the editor.",
       "caption": "Connect an AI agent over MCP and let it animate for you."
     },
     {
-      "src": "/media/shots/fullscreen.jpg",
+      "src": "/media/shots/fullscreen.webp",
       "alt": "The full-screen player running the animation.",
       "caption": "Hit full screen to present the finished piece."
     }
   ],
   "video": {
     "webm": "/media/tour.webm",
-    "poster": "/media/shots/state-machine.jpg"
+    "poster": "/media/shots/timeline.webp"
   }
 }

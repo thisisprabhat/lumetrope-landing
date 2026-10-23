@@ -19,6 +19,10 @@ describe("media.json", () => {
       expect(s.caption.trim()).not.toBe("");
     }
   });
+  it("shots are webp and poster exists", () => {
+    for (const s of media.shots) expect(s.src.endsWith(".webp"), s.src).toBe(true);
+    expect(existsSync(join(pub, media.video.poster))).toBe(true);
+  });
   it("references existing files", () => {
     const refs = [...media.shots.map((s: any) => s.src), media.video.webm, media.video.poster];
     if (media.video.mp4) refs.push(media.video.mp4);
