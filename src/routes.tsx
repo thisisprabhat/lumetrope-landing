@@ -1,7 +1,9 @@
 import type { ComponentType, JSX } from "react";
 import Landing from "./pages/Landing";
 import { DOCS } from "./docs/nav";
+import DocsLayout from "./docs/DocsLayout";
 
+// MDX pages are eager so they prerender.
 const mdxModules = import.meta.glob<{ default: ComponentType }>("./docs/pages/*.mdx", { eager: true });
 
 export interface RouteMeta { title: string; description: string }
@@ -17,7 +19,7 @@ export const ROUTES: AppRoute[] = [
     const Page = mdxModules[`./docs/pages/${d.file}.mdx`].default;
     return {
       path: `/docs/${d.slug}/`,
-      element: <Page />,
+      element: <DocsLayout slug={d.slug}><Page /></DocsLayout>,
       meta: { title: `${d.title} | Lumetrope Docs`, description: d.description },
     };
   }),

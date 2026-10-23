@@ -1,0 +1,25 @@
+# Install on Windows
+
+Run the NSIS setup (`.exe`) or the `.msi` on Windows 10 or 11. x64 and ARM64 are both supported.
+
+## Which download do I need?
+
+| PC | File |
+|---|---|
+| x64, installer | `Lumetrope_<version>_x64-setup.exe` |
+| x64, MSI | `Lumetrope_<version>_x64_en-US.msi` |
+| ARM64 | `Lumetrope_<version>_arm64-setup.exe` (no MSI for ARM64) |
+
+Find them on the project's GitHub Releases page.
+
+## What if SmartScreen warns me?
+
+Unsigned builds show "Windows protected your PC" because the publisher is unknown. Choose **More info**, then **Run anyway**.
+
+## Do I need anything else?
+
+Lumetrope uses the WebView2 runtime. It is preinstalled on Windows 11 and current Windows 10, and the installer downloads it if missing.
+
+## Where is the MCP server?
+
+`%APPDATA%\app.lumetrope.editor\mcp\lumetrope-mcp.mjs`. See [Connect AI agents with MCP](/docs/mcp/).

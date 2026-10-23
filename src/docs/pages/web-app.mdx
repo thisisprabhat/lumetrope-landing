@@ -1,0 +1,42 @@
+# Use the web app and self-host it
+
+The Lumetrope web app is a static site: open it in a modern browser and it works, with your projects and version history stored in the browser. You can also host the same static build yourself on any web server.
+
+## Which browsers work?
+
+Chrome and Edge 91+, Firefox 89+ and Safari 16.4+. Chrome and Edge also get File System Access, so <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>S</kbd> can save back into the file you opened.
+
+## How do I self-host Lumetrope?
+
+Serve the contents of the built `dist` folder as plain static files. There is no backend. Paths are relative, so it works at a domain root or under a sub-path.
+
+- **Use https.** File System Access, WebCodecs (WebM export) and clipboard paste need a secure page. Over plain http Lumetrope still works: Open uses a file picker, Save downloads the file, and WebM export is disabled with an explanation.
+- **Serve `.wasm` as `application/wasm`.** Most hosts do by default. With a wrong type it still loads, only slower.
+- **Cache wisely.** Files under `assets/` have content hashes and can be cached forever. Do not cache `index.html` for long.
+
+### nginx
+
+```nginx
+server {
+  listen 443 ssl;
+  server_name lumetrope.example.com;
+  root /srv/lumetrope;
+  types { application/wasm wasm; }
+  location /assets/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+  location = /index.html { add_header Cache-Control "no-cache"; }
+}
+```
+
+### Caddy
+
+```caddy
+lumetrope.example.com {
+  root * /srv/lumetrope
+  file_server
+  header /assets/* Cache-Control "public, max-age=31536000, immutable"
+}
+```
+
+## Does MCP work on a deployed web copy?
+
+No. MCP is hidden on copies served from a remote server, because a website cannot reach an MCP server on a visitor's computer. Use the desktop app, or serve Lumetrope from `localhost`. See [Connect AI agents with MCP](/docs/mcp/).
