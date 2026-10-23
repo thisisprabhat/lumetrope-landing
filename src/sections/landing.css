@@ -1,0 +1,118 @@
+/* Landing-page atmosphere: safelight glow, zoetrope drum, film-strip frames. Tokens only. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+:root {
+  --sprocket: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='12'%3E%3Crect x='7' y='2' width='12' height='8' rx='2' fill='%231d2126'/%3E%3C/svg%3E");
+}
+
+.hero {
+  background:
+    radial-gradient(56rem 32rem at 78% -6%, rgb(255 179 64 / 0.11), transparent 70%),
+    radial-gradient(40rem 24rem at 0% 110%, rgb(111 211 255 / 0.05), transparent 70%);
+}
+
+/* Zoetrope drum around Lumi: a ring of slits plus an amber core glow. */
+.drum {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 179 64 / 0.16), rgb(255 179 64 / 0.04) 70%, transparent 100%);
+}
+.drum::before,
+.drum::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.drum::before {
+  background: repeating-conic-gradient(from 0deg, var(--bg-3) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 84%, #000 84.5% 95%, transparent 95.5%);
+  mask: radial-gradient(closest-side, transparent 0 84%, #000 84.5% 95%, transparent 95.5%);
+}
+.drum::after {
+  inset: 1.5%;
+  border: 1px solid rgb(255 179 64 / 0.22);
+  box-shadow: 0 0 0 1px var(--bg-2) inset;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .drum::before { animation: drum-turn 80s linear infinite; }
+}
+@keyframes drum-turn { to { transform: rotate(1turn); } }
+
+/* Film strip: sprocket rows above and below the frame. */
+.film {
+  position: relative;
+  padding: 16px 0;
+  border-radius: 6px;
+  background: var(--bg-0) var(--sprocket) repeat-x 0 2px;
+  box-shadow: 0 0 0 1px var(--bg-3), 0 30px 80px -40px rgb(255 179 64 / 0.25);
+}
+.film::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 12px;
+  background: var(--sprocket) repeat-x;
+  pointer-events: none;
+}
+.film > * { border-radius: 2px; }
+@media (min-width: 640px) {
+  .film { padding: 20px 0; background-position: 0 4px; }
+  .film::after { bottom: 4px; }
+}
+
+.film-edge {
+  height: 12px;
+  background: var(--sprocket) repeat-x;
+  opacity: 0.8;
+}
+
+/* Features as a contact sheet. */
+.contact {
+  padding: 14px 0;
+  border-radius: 6px;
+  background: var(--bg-2) var(--sprocket) repeat-x 0 1px;
+  position: relative;
+}
+.contact::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  height: 12px;
+  background: var(--sprocket) repeat-x;
+}
+.feature { transition: background-color 0.2s; }
+.feature[data-hover] { background: var(--bg-1); }
+
+.faq summary:hover > span:first-child { color: var(--lume); }
+@media (prefers-reduced-motion: reduce) {
+  .feature, .benefit, .benefit h3 { transition: none; }
+}
+
+/* FAQ open/close mark: a CSS plus that turns into a cross, so the summary's text is only the question. */
+.faq-mark {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s;
+}
+.faq-mark::before,
+.faq-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--lume);
+  border-radius: 1px;
+}
+.faq-mark::before { left: 0; right: 0; top: 5px; height: 2px; }
+.faq-mark::after { top: 0; bottom: 0; left: 5px; width: 2px; }
+.faq[open] .faq-mark { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) {
+  .faq-mark { transition: none; }
+}

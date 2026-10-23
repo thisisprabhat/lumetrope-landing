@@ -1,0 +1,27 @@
+import Builds from "../components/Builds";
+
+# Install on Linux
+
+<Builds os="linux" />
+
+Install the `.deb`, `.rpm` or `.AppImage` from the table above, if it lists one. You need a desktop with WebKitGTK 4.1 version 2.40 or newer, which Ubuntu 22.04+, Debian 12+ and Fedora 38+ provide. Debian and Ubuntu use the `.deb`, Fedora and openSUSE the `.rpm`.
+
+For an AppImage run `chmod +x Lumetrope_*.AppImage` first, then launch it.
+
+## Why is the window blank?
+
+This is common with NVIDIA drivers. Start the app with the DMA-BUF renderer disabled:
+
+```bash
+WEBKIT_DISABLE_DMABUF_RENDERER=1 lumetrope-desktop
+```
+
+For an AppImage, set the same variable in front of the AppImage command.
+
+## Why do I get a WebAssembly SIMD error?
+
+Your WebKitGTK is older than 2.40. Update your distribution's `webkit2gtk-4.1` package.
+
+## Where is the MCP server?
+
+`~/.local/share/com.waygosquad.lumetrope/mcp/lumetrope-mcp.mjs`. See [Connect AI agents with MCP](/docs/mcp/).

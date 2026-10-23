@@ -1,0 +1,16 @@
+# Troubleshooting
+
+Most Lumetrope problems come from the system webview, browser security rules or a busy local port. Find your symptom below.
+
+| Problem | Fix |
+|---|---|
+| Linux: blank or white window (often NVIDIA) | Start with `WEBKIT_DISABLE_DMABUF_RENDERER=1 lumetrope-desktop`. |
+| Linux: WebAssembly "simd" error | WebKitGTK is older than 2.40. Update `webkit2gtk-4.1`. |
+| Blur or luma mattes look wrong | Older webview. Lumetrope falls back to the CPU renderer; switch with **View, Renderer**. |
+| WebM export disabled | Your webview lacks a WebCodecs encoder, or the page is not https. GIF and WebP always work. |
+| Save downloads a file instead of writing back | Needs https and Chrome or Edge, or the desktop app. |
+| macOS: app will not open | See [Install on macOS](/docs/install-macos/) for the Gatekeeper fix. |
+| Windows: SmartScreen warning | Choose **More info, Run anyway**. |
+| MCP: "Port 47321 is already in use" | Another `lumetrope-mcp` is running. Stop it or set `LUMETROPE_MCP_PORT`. |
+| MCP badge missing | You are on a deployed web copy. Use the desktop app. See [MCP](/docs/mcp/). |
+| Self-hosted copy loads slowly | Serve `.wasm` as `application/wasm`. See [web app](/docs/web-app/). |

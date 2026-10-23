@@ -1,0 +1,26 @@
+import Explainer from "../components/Explainer";
+
+# State machines
+
+A state machine makes a dotLottie animation interactive: it decides which part plays, in response to clicks, hovers and inputs. Lumetrope edits dotLottie 2.0 state machines in a node graph with a live preview.
+
+<Explainer />
+
+## What is in a state machine?
+
+- **States:** playback states that play a segment or the whole animation, and global states.
+- **Transitions:** instant or tweened, with guards.
+- **Guards:** conditions on numeric, string, boolean or event inputs, including `$input` references.
+- **Inputs:** the values the outside world sets. See [Inputs and interactions](/docs/inputs-and-interactions/).
+- **Actions:** every dotLottie action type.
+
+## How do I build one?
+
+1. Switch to the **State Machine** view.
+2. Add states and connect them with transitions.
+3. Add inputs and an interaction (for example, pointer enter) that sets one.
+4. Add a guard to the transition, such as "hover is true".
+
+## How do I test it?
+
+Use the live preview: click the real animation, drive inputs by hand and watch the event log. In the full-screen player (<kbd>F</kbd>), the state machine is clickable too.

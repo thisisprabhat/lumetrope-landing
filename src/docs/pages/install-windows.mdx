@@ -1,0 +1,19 @@
+import Builds from "../components/Builds";
+
+# Install on Windows
+
+<Builds os="windows" />
+
+Run the NSIS setup (`.exe`) or the `.msi` on Windows 10 or 11, when the table above lists them. The `.msi` is x64 only; ARM64 has the `.exe` only.
+
+## What if SmartScreen warns me?
+
+Unsigned builds show "Windows protected your PC" because the publisher is unknown. Choose **More info**, then **Run anyway**.
+
+## Do I need anything else?
+
+Lumetrope uses the WebView2 runtime. It is preinstalled on Windows 11 and current Windows 10, and the installer downloads it if missing.
+
+## Where is the MCP server?
+
+`%APPDATA%\com.waygosquad.lumetrope\mcp\lumetrope-mcp.mjs`. See [Connect AI agents with MCP](/docs/mcp/).

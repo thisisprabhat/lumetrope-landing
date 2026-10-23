@@ -1,0 +1,25 @@
+import Builds from "../components/Builds";
+
+# Install on macOS
+
+<Builds os="mac" />
+
+Open the `.dmg` and drag Lumetrope to Applications. The desktop app needs macOS 11 Big Sur or newer.
+
+## Which download do I need?
+
+Apple Silicon (M1 and later) Macs use the `aarch64` file and Intel Macs the `x64` file, when the table above lists them. Not sure which Mac you have? Apple menu, About This Mac. All files are on the project's GitHub Releases page.
+
+## Why does Gatekeeper say it cannot open Lumetrope?
+
+Builds that are not notarized trigger Gatekeeper on first launch. Either right-click the app, choose **Open**, then **Open** again, or remove the quarantine flag in Terminal:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Lumetrope.app
+```
+
+You only need to do this once.
+
+## Where does the app keep its data?
+
+Projects and version history live in the app's web storage. Files you open or save stay where you put them; access to them survives restarts. The MCP server is copied to `~/Library/Application Support/com.waygosquad.lumetrope/mcp/lumetrope-mcp.mjs`.

@@ -1,0 +1,8 @@
+:root {
+  --bg-0: #0b0c0e; --bg-1: #111316; --bg-2: #16191d; --bg-3: #1d2126;
+  --lume: #ffb340; --cyan: #6fd3ff; --ok: #7ee2a8; --violet: #b69cff;
+  --text-0: #eceae4; --text-1: #b5b3ac; --text-2: #7c7b76;
+  --font-sans: "Instrument Sans", system-ui, sans-serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-mono: "Martian Mono", ui-monospace, monospace;
+}
