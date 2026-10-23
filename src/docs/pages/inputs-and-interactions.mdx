@@ -1,0 +1,21 @@
+# Inputs and interactions
+
+Inputs hold values that a state machine reads, and interactions turn pointer events and playback events into input changes. Together they connect the user to the animation.
+
+## What input types exist?
+
+Boolean, numeric, string and event inputs. Guards on transitions compare them, and `$input` references let one input drive another value.
+
+## What interactions can trigger changes?
+
+- Click
+- Pointer down, pointer up
+- Pointer enter, pointer exit, pointer move
+- On complete (a segment finished)
+- On loop complete
+
+On touch screens without hover, taps drive the same pointer events.
+
+## How do I check it works?
+
+Open the preview, trigger the interaction, and read the event log to see which transition fired. See [State machines](/docs/state-machines/).
