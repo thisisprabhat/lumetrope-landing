@@ -1,0 +1,16 @@
+# Masks, mattes and effects
+
+Masks, track mattes, blend modes and effects control how layers combine and look. Lumetrope supports all of them with live canvas preview.
+
+## What is the difference between a mask and a matte?
+
+A **mask** is a path drawn on a layer that hides everything outside it. A **track matte** uses another layer as the mask, by its alpha or its luma (brightness).
+
+## What blend modes and effects are supported?
+
+- **Blend modes:** per-layer.
+- **Effects:** drop shadow, gaussian blur, fill, tint and tritone.
+
+## Why do blur or luma mattes look wrong on my system?
+
+Older webviews may lack Canvas2D filters. Lumetrope falls back to the CPU renderer automatically, and you can switch manually with **View, Renderer**. See [Troubleshooting](/docs/troubleshooting/).

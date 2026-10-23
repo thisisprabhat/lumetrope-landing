@@ -1,0 +1,15 @@
+# Themes and slots
+
+Slots mark values in an animation, such as a colour, that can be replaced at runtime. Themes are named sets of slot values. Lumetrope exports them to the dotLottie `t/` folder.
+
+## What is a slot?
+
+A slot is a named value on a property. Players can override it without changing the animation itself.
+
+## What is a theme?
+
+A theme sets values for slots, so one file can ship with a light and dark look, or brand variants.
+
+## How are they exported?
+
+Export as **dotLottie** to keep state machines and themes. Plain Lottie JSON cannot carry them. See [Exporting](/docs/exporting/).

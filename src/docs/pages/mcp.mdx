@@ -1,0 +1,71 @@
+import McpTools, { MCP_TOOL_COUNT } from "../McpTools";
+
+# Connect AI agents with MCP
+
+Lumetrope ships an MCP server so agents such as Claude Code, Codex, Cursor and Claude Desktop can read and edit the animation you have open. It exposes {MCP_TOOL_COUNT} tools and needs Node.js 20 or newer.
+
+## How do I set it up?
+
+1. Install the Lumetrope desktop app. It copies the MCP server to a fixed path on every launch.
+2. In the app, click the **MCP** badge. It shows the exact commands for your OS, with the real server path.
+3. Enable **Local MCP**.
+4. Register the server with your agent (below). Replace `<server path>` with the path for your OS.
+
+### Where is the installed server?
+
+| OS | Server path |
+|---|---|
+| macOS | `~/Library/Application Support/com.waygosquad.lumetrope/mcp/lumetrope-mcp.mjs` |
+| Windows | `%APPDATA%\com.waygosquad.lumetrope\mcp\lumetrope-mcp.mjs` |
+| Linux | `~/.local/share/com.waygosquad.lumetrope/mcp/lumetrope-mcp.mjs` |
+
+### Claude Code
+
+```bash
+claude mcp add --scope user lumetrope -- node "<server path>"
+```
+
+### Codex CLI
+
+```bash
+codex mcp add lumetrope -- node "<server path>"
+```
+
+Or edit `~/.codex/config.toml` (Windows: `%USERPROFILE%\.codex\config.toml`):
+
+```toml
+[mcp_servers.lumetrope]
+command = "node"
+args = ["<server path>"]
+```
+
+### Cursor and Claude Desktop (JSON config)
+
+```json
+{"mcpServers":{"lumetrope":{"command":"node","args":["<server path>"]}}}
+```
+
+- **Cursor:** `~/.cursor/mcp.json`
+- **Claude Desktop, macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Claude Desktop, Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+## What can I ask the agent?
+
+- "Read the scene and describe the layers."
+- "Add a bouncing ball and give it a hover state machine."
+- "Recolour the brand colours to teal, then show me frame 30."
+- "Save a version called 'before easing', then ease all position keyframes."
+
+The agent can render frames to images, so it can check its own work.
+
+## How does the connection work?
+
+The server listens on `ws://127.0.0.1:47321`. Set `LUMETROPE_MCP_PORT` to change the port. Only local Lumetrope windows can connect.
+
+## Why is MCP hidden on a deployed web copy?
+
+A website cannot reach an MCP server on a visitor's computer, so the badge and setup are hidden on copies served from a remote server. Use the desktop app, or serve Lumetrope from `localhost`.
+
+## Which tools are available?
+
+<McpTools />

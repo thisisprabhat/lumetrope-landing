@@ -1,0 +1,25 @@
+# Exporting animations
+
+Lumetrope exports dotLottie and Lottie JSON, plus animated GIF, WebP and WebM with transparency. Open the export dialog with <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>E</kbd>.
+
+## Which format should I choose?
+
+| Format | Best for | Transparency |
+|---|---|---|
+| dotLottie | Everything, including state machines and themes | Yes |
+| Lottie JSON | Players that want plain JSON | Yes |
+| GIF | Universal, small colour range | Transparent palette index |
+| WebP | High quality, lossless | Full alpha channel |
+| WebM | Small video | VP9/VP8 alpha stream |
+
+## How does transparency work?
+
+GIF uses a transparent palette index; soft edges blend into an edge-matte colour you choose. WebP is lossless with a full alpha channel. WebM has an alpha stream. Or flatten onto a background colour instead.
+
+## What options can I set?
+
+Size, frame rate, and a segment or the whole animation.
+
+## Why is WebM disabled?
+
+WebM uses your webview's WebCodecs encoder and needs https. If missing, the dialog says why. See [Troubleshooting](/docs/troubleshooting/).
