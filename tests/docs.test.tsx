@@ -42,9 +42,9 @@ describe("docs", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("claude mcp add --scope user lumetrope");
     expect(text).toContain("codex mcp add lumetrope");
-    expect(text).toContain("~/Library/Application Support/app.lumetrope.editor/mcp/lumetrope-mcp.mjs");
-    expect(text).toContain("%APPDATA%\\app.lumetrope.editor\\mcp\\lumetrope-mcp.mjs");
-    expect(text).toContain("~/.local/share/app.lumetrope.editor/mcp/lumetrope-mcp.mjs");
+    expect(text).toContain("~/Library/Application Support/com.waygosquad.lumetrope/mcp/lumetrope-mcp.mjs");
+    expect(text).toContain("%APPDATA%\\com.waygosquad.lumetrope\\mcp\\lumetrope-mcp.mjs");
+    expect(text).toContain("~/.local/share/com.waygosquad.lumetrope/mcp/lumetrope-mcp.mjs");
     expect(container.querySelectorAll("table[data-mcp-tools] tbody tr").length).toBeGreaterThanOrEqual(100);
   });
 
