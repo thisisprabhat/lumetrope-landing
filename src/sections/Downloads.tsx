@@ -20,6 +20,7 @@ export function Downloads({ art }: { art?: ReactNode } = {}) {
   const list = publishedDownloads();
   const plat = usePlatform();
   const primary = plat ? primaryDownload(plat, list) : null;
+  const checksums = RELEASE.assets.find((a) => a.name === "SHA256SUMS.txt");
   const noIntel = intelMacMissing(plat, list);
 
   return (
@@ -42,6 +43,7 @@ export function Downloads({ art }: { art?: ReactNode } = {}) {
         )}
         <CtaLink href={SITE.WEB_APP_URL} variant="ghost" glyph="open">Open the web app</CtaLink>
         <a href={`${SITE.REPO_URL}/releases/latest`} className={linkCls}>All releases</a>
+        {checksums && <a href={`${SITE.REPO_URL}/releases/download/${RELEASE.tag}/${checksums.name}`} className={linkCls}>Checksums</a>}
       </div>
       {noIntel && (
         <p data-testid="intel-note" className="mt-4 max-w-xl text-sm text-text-1">

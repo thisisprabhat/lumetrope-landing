@@ -27,6 +27,24 @@ Release config lives in one place, `src/config/site.ts`: `SITE_URL`, `REPO_URL`,
 click the host is probed (2.5 s timeout), a click is held until the probe settles, and every link
 switches to the fallback if the primary can't be reached (`src/lib/webApp.ts`).
 
+Known issue: the vendored `.wasm` under `src/engine/vendor/` still contains build-machine home
+paths until the next `pnpm sync:engine`, which now remaps them.
+
+## OG images
+
+Regenerate the social/OG images with `node scripts/og.mjs`. If `og.lottie` changed, run
+`pnpm animations` first.
+
+## Releasing a new Lumetrope version
+
+1. Bump `VERSION` in `src/config/site.ts`.
+2. Run `pnpm sync:release` (the GitHub release must already be published).
+3. Bump `DOCS_UPDATED` if the docs changed.
+4. Run `pnpm test`, `pnpm typecheck`, `pnpm build` and `pnpm e2e`.
+5. Deploy.
+
+The e2e Downloads spec assumes the release has a macOS dmg (it checks the Apple Silicon dmg link).
+
 ## Budgets
 
 Lighthouse mobile on `/` and `/docs/getting-started/`: Performance ≥ 90, Accessibility ≥ 95,
