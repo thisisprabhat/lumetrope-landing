@@ -1,12 +1,6 @@
-// Always cleans dist/ and runs `pnpm build` in beforeAll, so assertions reflect current source.
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import { execSync } from "node:child_process";
-import { beforeAll, expect, test } from "vitest";
-
-beforeAll(() => {
-  rmSync("dist", { recursive: true, force: true });
-  execSync("pnpm build", { stdio: "inherit" });
-}, 180000);
+// dist/ is rebuilt from current source once per run by tests/global-build.ts.
+import { existsSync, readFileSync } from "node:fs";
+import { expect, test } from "vitest";
 
 test("landing is pre-rendered", () => {
   const html = readFileSync("dist/index.html", "utf8");
