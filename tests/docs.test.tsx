@@ -70,4 +70,21 @@ describe("docs", () => {
       expect(HEADINGS[d.file]).toEqual(hs);
     }
   });
+
+  test("state-machines page embeds the sm-explainer stage with a live state readout", () => {
+    const { container } = page("state-machines");
+    const stage = container.querySelector('[data-explainer] [role="button"]');
+    expect(stage).not.toBeNull();
+    const img = stage!.querySelector("img");
+    expect(img?.getAttribute("src")).toBe("/posters/sm-explainer.webp");
+    expect(container.querySelector('[data-explainer] [aria-live="polite"]')?.textContent).toContain("Current state:");
+  });
+
+  test("keyboard shortcuts page lists nudge, Home/End and Mod+A rows", () => {
+    const { container } = page("keyboard-shortcuts");
+    const text = container.textContent ?? "";
+    expect(text).toContain("Select all");
+    expect(text).toContain("Nudge selection");
+    expect(text).toContain("Animate mode");
+  });
 });
