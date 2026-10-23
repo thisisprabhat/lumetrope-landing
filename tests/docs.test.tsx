@@ -85,7 +85,6 @@ describe("docs", () => {
     const rows = [...container.querySelectorAll("tr")].map((r) => r.textContent ?? "");
     const row = (label: string) => rows.find((r) => r.includes(label)) ?? "";
     expect(row("Select all")).toMatch(/⌘A.*Ctrl\+A/);
-    expect(row("Fit to window |")).toBeDefined();
     expect(rows.find((r) => r.startsWith("Fit to window") && r.includes("⌘0"))).toContain("Ctrl+0");
     expect(row("first / last frame")).toContain("Home");
     expect(row("Nudge selection")).toContain("10 px");
