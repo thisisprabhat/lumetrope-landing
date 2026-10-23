@@ -1,6 +1,6 @@
 {
   "name": "lumetrope-landing",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Marketing site and docs for Lumetrope, the open-source Lottie and dotLottie editor.",
   "scripts": {
     "dev": "vite",
