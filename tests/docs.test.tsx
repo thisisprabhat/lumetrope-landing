@@ -70,4 +70,25 @@ describe("docs", () => {
       expect(HEADINGS[d.file]).toEqual(hs);
     }
   });
+
+  test("state-machines page embeds the sm-explainer stage with a live state readout", () => {
+    const { container } = page("state-machines");
+    const stage = container.querySelector('[data-explainer] [role="button"]');
+    expect(stage).not.toBeNull();
+    const img = stage!.querySelector("img");
+    expect(img?.getAttribute("src")).toBe("/posters/sm-explainer.webp");
+    expect(container.querySelector('[data-explainer] [aria-live="polite"]')?.textContent).toContain("Current state:");
+  });
+
+  test("keyboard shortcuts page lists nudge, Home/End and Mod+A rows", () => {
+    const { container } = page("keyboard-shortcuts");
+    const rows = [...container.querySelectorAll("tr")].map((r) => r.textContent ?? "");
+    const row = (label: string) => rows.find((r) => r.includes(label)) ?? "";
+    expect(row("Select all")).toMatch(/⌘A.*Ctrl\+A/);
+    expect(rows.find((r) => r.startsWith("Fit to window") && r.includes("⌘0"))).toContain("Ctrl+0");
+    expect(row("first / last frame")).toContain("Home");
+    expect(row("Nudge selection")).toContain("10 px");
+    expect(rows.some((r) => r.includes("10 frames"))).toBe(false);
+    expect(container.textContent).toContain("Animate mode");
+  });
 });
