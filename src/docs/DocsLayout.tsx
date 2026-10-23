@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { DOCS } from "./nav";
 import Sidebar from "./Sidebar";
 import Toc, { type TocItem } from "./Toc";
+import { Header } from "../sections/Header";
+import { Footer } from "../sections/Footer";
 import "./docs.css";
 
 const Collector = createContext<TocItem[] | null>(null);
@@ -43,14 +45,9 @@ export default function DocsLayout({ slug, children }: { slug: string; children:
 
   return (
     <div className="min-h-screen bg-bg-0 text-text-0">
-      <header className="border-b border-bg-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link to="/" className="font-display text-xl italic text-text-0">Lumetrope</Link>
-          <Link to="/docs/getting-started/" className="text-sm text-text-1 hover:text-lume">Docs</Link>
-        </div>
-      </header>
+      <Header />
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_14rem]">
-        <aside className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto">
+        <aside className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
           <details ref={menu} open className="[&>summary]:cursor-pointer lg:[&>summary]:hidden">
             <summary className="mb-3 rounded border border-bg-3 px-3 py-2 text-sm text-text-1">Docs menu</summary>
             <Sidebar current={slug} />
@@ -77,10 +74,11 @@ export default function DocsLayout({ slug, children }: { slug: string; children:
             ) : <span />}
           </nav>
         </main>
-        <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
+        <aside className="hidden xl:sticky xl:top-20 xl:block xl:self-start">
           <Toc items={items} />
         </aside>
       </div>
+      <Footer />
     </div>
   );
 }
