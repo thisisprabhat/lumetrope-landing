@@ -31,3 +31,23 @@ test.describe("without JavaScript", () => {
     await expect(page.getByRole("searchbox")).toHaveCount(0);
   });
 });
+
+test("the explainer has a real size", async ({ page }) => {
+  await page.goto("/docs/state-machines/");
+  const stage = page.getByRole("button", { name: /Interactive state machine explainer/ });
+  await stage.scrollIntoViewIfNeeded();
+  const box = await stage.boundingBox();
+  expect(box!.width).toBeGreaterThan(200);
+  expect(box!.height).toBeGreaterThan(150);
+});
+
+test("client-side navigation scrolls to the top and updates the title", async ({ page }) => {
+  await page.goto("/docs/getting-started/");
+  await expect(page).toHaveTitle("Getting started | Lumetrope Docs");
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+  await page.getByRole("navigation", { name: "Previous and next" }).getByRole("link", { name: /Next/ }).click();
+  await expect(page).toHaveURL(/\/docs\/web-app\/$/);
+  await expect(page).toHaveTitle("Use the web app and self-host it | Lumetrope Docs");
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});

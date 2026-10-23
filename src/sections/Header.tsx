@@ -25,7 +25,7 @@ export function Header() {
         <nav aria-label="Main" className="flex items-center gap-1 sm:gap-3">
           <a href="/#features" className={`${link} hidden md:inline`}>Features</a>
           <a href="/#download" className={`${link} hidden md:inline`}>Download</a>
-          <a href="/docs/getting-started/" className={`${link} hidden min-[360px]:inline`}>Docs</a>
+          <a href="/docs/getting-started/" className={link}>Docs</a>
           <CtaLink href={SITE.WEB_APP_URL} variant="nav" glyph="open" className="ml-1">Open web app</CtaLink>
         </nav>
       </div>

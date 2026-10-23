@@ -1,7 +1,13 @@
 // Social card source (1200x630). Frame 0 is the default card, frame 1 the docs card;
 // scripts/og.mjs renders each to public/og/*.png.
+import { readFileSync } from "node:fs";
 import { brandMark } from "./brand.mjs";
 import { C, Doc } from "./lib.mjs";
+
+// The repo URL comes from src/config/site.ts (the single source). That file is TypeScript and
+// imports JSON, so read the constant from its text instead of importing it.
+const REPO_URL = readFileSync(new URL("../../src/config/site.ts", import.meta.url), "utf8").match(/REPO_URL:\s*"([^"]+)"/)?.[1];
+if (!REPO_URL) throw new Error("REPO_URL not found in src/config/site.ts");
 
 export const name = "og";
 export const options = { posterScale: 1 };
@@ -25,7 +31,7 @@ export function build() {
   d.op("create_text", { name: "SubA", text: "State machines, a WASM engine and MCP for AI agents", font_size: 30, color: C.text1, justify: "left", position: [84, 470] });
   d.op("create_text", { name: "HeadB", text: "Documentation", font_size: 64, color: C.text, justify: "left", position: [84, 400] });
   d.op("create_text", { name: "SubB", text: "Guides for the editor, dotLottie export and MCP", font_size: 30, color: C.text1, justify: "left", position: [84, 470] });
-  d.op("create_text", { name: "Url", text: "github.com/thisisprabhat/lumetrope", font_size: 28, color: C.lume, justify: "left", position: [84, 570] });
+  d.op("create_text", { name: "Url", text: REPO_URL.replace(/^https?:\/\//, ""), font_size: 28, color: C.lume, justify: "left", position: [84, 570] });
   d.shape({ type: "rect", name: "Rule", position: [600, 618], size: [1200, 12], fill: C.lume });
 
   d.track("HeadA", "opacity", [[0, 100, "hold"], [1, 0, "hold"]]);

@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const dist = resolve("dist");
 const template = readFileSync(join(dist, "index.html"), "utf8");
-const { render, ROUTE_PATHS: paths, SITE, DOCS } = await import(pathToFileURL(join(dist, "server", "entry-server.js")).href);
+const { render, ROUTE_PATHS: paths, SITE, DOCS, installStatus, renderNotFound } = await import(pathToFileURL(join(dist, "server", "entry-server.js")).href);
 
 const pages = new Map();
 for (const path of paths) {
@@ -17,13 +17,20 @@ for (const path of paths) {
   console.log("prerendered", path);
 }
 
+// 404.html: the host's not-found page (not a route, so it is not in the sitemap).
+{
+  const { html, head } = renderNotFound();
+  writeFileSync(join(dist, "404.html"), template.replace("<!--head-->", () => head).replace("<!--app-->", () => html));
+  console.log("prerendered 404.html");
+}
+
 // ---- crawler files ---------------------------------------------------------
 const site = SITE.SITE_URL;
 const lastmod = new Date().toISOString().slice(0, 10);
 const write = (name, body) => writeFileSync(join(dist, name), body);
 const decode = (s) => s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
-const docPaths = paths.filter((p) => p.startsWith("/docs/"));
+const docPaths = paths.filter((p) => p.startsWith("/docs/") && p !== "/docs/");
 const docInfo = docPaths.map((p) => {
   const html = pages.get(p);
   return {
@@ -68,6 +75,7 @@ const md = (slug) =>
   readFileSync(join("src/docs/pages", `${slug}.mdx`), "utf8")
     .replace(/^---[\s\S]*?---\n/, "")
     .replace(/^import .*\n/gm, "")
+    .replace(/^<Builds os="(\w+)" \/>\s*$/gm, (_, os) => installStatus(os))
     .replace(/^<([A-Z]\w*) \/>\s*$/gm, (_, c) => (c === "McpTools" ? `The full tool list is at ${site}/docs/mcp/.` : ""))
     .replace(/\{MCP_TOOL_COUNT\}/g, toolCount)
     .replace(/\]\((\/[^)]*)\)/g, (_, u) => `](${site}${u})`)

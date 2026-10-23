@@ -3,6 +3,7 @@ import { SITE, primaryDownload, primaryLabel, publishedDownloads } from "../conf
 import { bus } from "../lib/bus";
 import { usePlatform } from "../lib/usePlatform";
 import { LottieStage, type StageHandle } from "../player/LottieStage";
+import { desktopSummary } from "../content/availability";
 import { CtaLink } from "./CtaLink";
 import { art } from "./art";
 
@@ -72,7 +73,7 @@ export function Hero() {
             <CtaLink href={SITE.WEB_APP_URL} variant="ghost" glyph="open">Open the web app</CtaLink>
           </div>
           <p className="mt-5 text-sm text-text-2">
-            MIT licensed. For macOS, Windows and Linux, and any modern browser.
+            MIT licensed. {desktopSummary(publishedDownloads())}
           </p>
         </div>
         <div className="relative mx-auto w-full max-w-[17rem] sm:max-w-[22rem] md:max-w-none">

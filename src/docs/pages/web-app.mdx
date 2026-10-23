@@ -20,12 +20,20 @@ Serve the contents of the built `dist` folder as plain static files. There is no
 server {
   listen 443 ssl;
   server_name lumetrope.example.com;
+  ssl_certificate     /etc/ssl/lumetrope/fullchain.pem;
+  ssl_certificate_key /etc/ssl/lumetrope/privkey.pem;
   root /srv/lumetrope;
-  types { application/wasm wasm; }
+  include mime.types;
+  location ~* \.wasm$ {
+    types { application/wasm wasm; }
+    add_header Cache-Control "public, max-age=31536000, immutable";
+  }
   location /assets/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
   location = /index.html { add_header Cache-Control "no-cache"; }
 }
 ```
+
+`listen 443 ssl` needs the `ssl_certificate` and `ssl_certificate_key` lines (use your own certificate paths, or Let's Encrypt). Keep `include mime.types;` and put `types { ... }` only inside the `.wasm` location: a `types` block at server level replaces the whole table, so scripts such as `.js` would be sent as `application/octet-stream` and the app would load blank. Recent nginx versions already map `.wasm`, so that location is only needed on older ones.
 
 ### Caddy
 

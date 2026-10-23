@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { MDXProvider } from "@mdx-js/react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { DOCS } from "./nav";
 import Sidebar from "./Sidebar";
 import Toc, { type TocItem } from "./Toc";
 import { Header } from "../sections/Header";
 import { Footer } from "../sections/Footer";
-import { DOCS_UPDATED } from "../seo/meta";
+import { DOCS_UPDATED, pageMeta } from "../seo/meta";
 import "./docs.css";
 
 const Collector = createContext<TocItem[] | null>(null);
@@ -46,6 +46,21 @@ export default function DocsLayout({ slug, children }: { slug: string; children:
   useEffect(() => {
     if (menu.current) menu.current.open = !!window.matchMedia?.("(min-width: 1024px)").matches;
   }, [slug]);
+
+  // Client-side navigation keeps the old scroll position and <title>; the server HTML already has the
+  // right ones, so only act when the page (or hash) changes after the first render.
+  const { hash } = useLocation();
+  const seen = useRef<{ slug: string; hash: string } | null>(null);
+  useEffect(() => {
+    const title = pageMeta(`/docs/${slug}/`)?.title;
+    if (title) document.title = title;
+    const before = seen.current;
+    seen.current = { slug, hash };
+    if (!before || (before.slug === slug && before.hash === hash)) return;
+    const target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+    if (target) target.scrollIntoView();
+    else if (!hash) window.scrollTo(0, 0);
+  }, [slug, hash]);
 
   return (
     <div className="min-h-screen bg-bg-0 text-text-0">

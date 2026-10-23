@@ -20,3 +20,11 @@ it("shares one engine init across three stages and keeps posters when it rejects
   expect(container.querySelectorAll("img")).toHaveLength(3);
   expect(container.querySelectorAll("[role=button]")).toHaveLength(3);
 });
+
+it("fills its box by default, so a stage with no className can never render at zero size", () => {
+  const { container } = render(<LottieStage src="/z.lottie" poster="/z.png" alt="Zero" />);
+  const root = container.querySelector<HTMLElement>("[role=button]")!;
+  expect(root.style.width).toBe("100%");
+  expect(root.style.height).toBe("100%");
+  expect(root.style.position).toBe("relative");
+});

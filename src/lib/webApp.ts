@@ -48,7 +48,16 @@ export function installWebAppFallback(
   const onIntent = (e: Event) => { if (link(e)) void check(); };
   const onClick = (e: MouseEvent) => {
     const a = link(e);
-    if (!a || up !== null) return; // settled: the href is already the right one
+    if (!a) return;
+    if (up === false) {
+      // The probe failed before this link existed, so rewrite() never saw it.
+      const href = a.getAttribute("href")!;
+      const to = fallback + href.slice(primary.length);
+      const plain = !e.defaultPrevented && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && (!a.target || a.target === "_self");
+      if (plain) { e.preventDefault(); navigate(to); } else a.href = to;
+      return;
+    }
+    if (up !== null) return; // settled and up: the href is already the right one
     const plain = !e.defaultPrevented && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && (!a.target || a.target === "_self");
     if (!plain) { void check(); return; }
     e.preventDefault();

@@ -112,4 +112,19 @@ describe("web app fallback", () => {
     await new Promise((r) => setTimeout(r, 40));
     expect(signal?.aborted).toBe(true);
   });
+
+  it("a web-app link mounted after the probe failed still goes to the fallback", async () => {
+    links();
+    const went: string[] = [];
+    off = installWebAppFallback(document, { probe: () => Promise.reject(new TypeError("Failed to fetch")), navigate: (u) => went.push(u) });
+    hover("a");
+    await settle();
+    // mounted later (e.g. the Intel-Mac note after platform detection), so rewrite() never saw it
+    document.body.insertAdjacentHTML("beforeend", `<a id="late" href="${SITE.WEB_APP_URL}#late">late</a><a id="late2" href="${SITE.WEB_APP_URL}">late2</a>`);
+    expect(click("late").defaultPrevented).toBe(true);
+    expect(went).toEqual([`${SITE.WEB_APP_FALLBACK_URL}#late`]);
+    // modified click: not intercepted, but the href is corrected for the browser's own handling
+    expect(click("late2", { ctrlKey: true }).defaultPrevented).toBe(false);
+    expect(el("late2").getAttribute("href")).toBe(SITE.WEB_APP_FALLBACK_URL);
+  });
 });

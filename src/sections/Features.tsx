@@ -1,8 +1,17 @@
+import { publishedDownloads } from "../config/site";
+import { platformPhrase } from "../content/availability";
 import { LottieStage } from "../player/LottieStage";
 import { art } from "./art";
 import { useHoverInput } from "./useHoverInput";
 
 type Feature = { icon: string; title: string; body: string; href?: string; more?: string };
+
+/** Built from the release snapshot, so it only names platforms that have a published build. */
+function desktopCard(): { body: string } {
+  const p = platformPhrase(publishedDownloads());
+  const web = "The same editor runs in any modern browser with nothing to install.";
+  return { body: p ? `Native desktop builds for ${p}. Other systems can build from source or use the web app. ${web}` : `${web} The desktop app can be built from source.` };
+}
 
 export const FEATURES: Feature[] = [
   { icon: "timeline", title: "Keyframes on a real timeline", body: "Keyframe any property, shape the motion with a curve easing editor and presets, and mark named segments you can play or trigger later." },
@@ -11,7 +20,7 @@ export const FEATURES: Feature[] = [
   { icon: "wasm-engine", title: "Its own WASM engine and GPU canvas", body: "A Rust engine compiled to WebAssembly evaluates, renders and runs state machines, drawing to the canvas through the GPU. This page runs on it." },
   { icon: "version-history", title: "Local version history", body: "Save versions, restore any of them, branch and diff. Autosave keeps every version on your device, with no server involved." },
   { icon: "export", title: "GIF, WebP and WebM with alpha", body: "Export transparent GIF, lossless WebP or WebM with an alpha channel, at the size, frame rate and segment you choose." },
-  { icon: "desktop", title: "macOS, Windows, Linux and the web", body: "Native desktop apps for all three systems, and the same editor in any modern browser with nothing to install." },
+  { icon: "desktop", title: "A desktop app and the web", ...desktopCard() },
   { icon: "themes", title: "Themes and slots", body: "Turn colours and other values into slots, group them into themes, and swap them at runtime in the exported dotLottie." },
 ];
 

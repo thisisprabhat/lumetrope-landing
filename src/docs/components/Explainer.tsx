@@ -5,12 +5,13 @@ export default function Explainer() {
   const [state, setState] = useState("");
   return (
     <figure data-explainer className="my-6">
-      <div className="relative aspect-[4/3] w-full max-w-md">
+      <div className="relative aspect-[4/3] h-auto w-full max-w-md" style={{ minHeight: 240 }}>
         <LottieStage
           src="/animations/sm-explainer.lottie"
           stateMachine="Explainer"
           poster="/posters/sm-explainer.webp"
           alt="Interactive state machine explainer: click to move between states"
+          className="h-full w-full"
           onState={setState}
         />
       </div>

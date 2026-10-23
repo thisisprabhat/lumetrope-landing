@@ -1,5 +1,5 @@
 import { jsonLdFor, serializeLd } from "./jsonld";
-import { THEME_COLOR, esc, pageMeta } from "./meta";
+import { NOT_FOUND_META, THEME_COLOR, esc, pageMeta } from "./meta";
 
 /** Head markup for a route (title, description, canonical, OG/Twitter, theme-color, JSON-LD). */
 export function renderHead(path: string): string {
@@ -28,4 +28,14 @@ export function renderHead(path: string): string {
   const ld = jsonLdFor(path);
   if (ld) parts.push(`<script type="application/ld+json">${serializeLd(ld)}</script>`);
   return parts.join("");
+}
+
+/** Head markup for dist/404.html. */
+export function renderNotFoundHead(): string {
+  return [
+    `<title>${esc(NOT_FOUND_META.title)}</title>`,
+    `<meta name="description" content="${esc(NOT_FOUND_META.description)}" />`,
+    `<meta name="robots" content="noindex" />`,
+    `<meta name="theme-color" content="${THEME_COLOR}" />`,
+  ].join("");
 }
