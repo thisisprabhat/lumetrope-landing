@@ -1,10 +1,11 @@
-// Reads dist/ produced by `pnpm build`; run the build first (global setup runs it if dist is missing).
-import { existsSync, readFileSync } from "node:fs";
+// Always cleans dist/ and runs `pnpm build` in beforeAll, so assertions reflect current source.
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { beforeAll, expect, test } from "vitest";
 
 beforeAll(() => {
-  if (!existsSync("dist/index.html")) execSync("pnpm build", { stdio: "inherit" });
+  rmSync("dist", { recursive: true, force: true });
+  execSync("pnpm build", { stdio: "inherit" });
 }, 180000);
 
 test("landing is pre-rendered", () => {
