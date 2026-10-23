@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { bus } from "../lib/bus";
 import { SITE, downloads, primaryDownload, type DownloadOS } from "../config/site";
 import { detectPlatform, detectPlatformAsync, type Platform } from "../lib/platform";
 
@@ -10,7 +11,8 @@ const GROUPS: { os: DownloadOS; name: string; glyph: string; req: string; docs: 
 const OS_NAME: Record<string, string> = { mac: "macOS", windows: "Windows", linux: "Linux" };
 const linkCls = "text-cyan underline-offset-4 hover:underline focus-visible:underline";
 
-export function Downloads() {
+/** `art` is an optional player shown beside the heading (the landing page passes one). */
+export function Downloads({ art }: { art?: ReactNode } = {}) {
   const list = downloads(SITE.VERSION);
   const [plat, setPlat] = useState<Platform | null>(null);
   useEffect(() => {
@@ -22,15 +24,18 @@ export function Downloads() {
   const primary = plat ? primaryDownload(plat, list) : null;
 
   return (
-    <section id="download" className="mx-auto max-w-5xl px-4 py-20 sm:px-6" aria-labelledby="download-h">
-      <h2 id="download-h" className="font-display text-4xl italic text-text-0">Download Lumetrope</h2>
+    <section id="download" className="mx-auto max-w-6xl px-4 py-20 sm:px-6" aria-labelledby="download-h">
+      <div className="flex items-center gap-4">
+        {art}
+        <h2 id="download-h" className="font-display text-4xl italic text-text-0">Download Lumetrope</h2>
+      </div>
       <p className="mt-3 text-text-1">
         Version <span className="font-mono text-text-0">{SITE.VERSION}</span>. Free and open source.
       </p>
 
       <div className="mt-8 flex min-h-[7.5rem] flex-wrap content-start items-center gap-4 sm:min-h-[3.5rem]" data-testid="primary-download">
         {primary && (
-          <a href={primary.url} className="rounded-lg bg-lume px-6 py-3 font-semibold text-bg-0 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan">
+          <a href={primary.url} onClick={() => bus.emit("download")} className="rounded-lg bg-lume px-6 py-3 font-semibold text-bg-0 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan">
             Download for {OS_NAME[primary.os]} <span className="font-mono text-sm">({primary.label})</span>
           </a>
         )}
