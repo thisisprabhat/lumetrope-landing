@@ -1,4 +1,6 @@
-// Logo mark: a lantern disc with light slits that turns slowly and spins up on hover.
+// Logo: the Lumetrope brand mark (brand.mjs, the same ring-and-dot the app uses) with a warm glow.
+// The slit ring turns slowly and spins up on hover, like a zoetrope drum.
+import { brandMark } from "./brand.mjs";
 import { C, Doc } from "./lib.mjs";
 
 export const name = "logo";
@@ -9,20 +11,12 @@ export function build() {
   d.segment("fast", 60, 90, true);
 
   d.shape({ type: "ellipse", name: "Glow", position: [20, 20], size: [40, 40], fill: C.lume });
-  d.radial("Glow", [{ offset: 0, color: C.lume, opacity: 0.35 }, { offset: 1, color: C.lume, opacity: 0 }], { start: [0, 0], end: [20, 0] });
-  d.shape({ type: "ellipse", name: "Disc", position: [20, 20], size: [32, 32], fill: C.lume });
-  d.linear("Disc", [{ offset: 0, color: C.lumeHi }, { offset: 0.45, color: C.lume }, { offset: 1, color: C.lumeDeep }], [-16, -16], [16, 16]);
-  d.shape({ type: "ellipse", name: "Hub", position: [20, 20], size: [10, 10], fill: C.bg0 });
+  d.radial("Glow", [{ offset: 0, color: C.lume, opacity: 0.3 }, { offset: 1, color: C.lume, opacity: 0 }], { start: [0, 0], end: [20, 0] });
+  const { ring, dot } = brandMark(d, "Mark", [20, 20], 40);
 
-  // Slits: four spokes, so rotation reads even on a flat disc.
-  const spoke = (a) => [[20 + 5.5 * Math.sin(a), 20 - 5.5 * Math.cos(a)], [20 + 12 * Math.sin(a), 20 - 12 * Math.cos(a)]];
-  d.line("Slits", [20, 20], spoke(0), C.bg0, 3.2);
-  for (const k of [1, 2, 3]) {
-    const [[x0, y0], [x1, y1]] = spoke((k * Math.PI) / 2);
-    d.addLine("Slits", [[x0 - 20, y0 - 20], [x1 - 20, y1 - 20]], C.bg0, 3.2);
-  }
-
-  d.track("Slits", "rotation", [[0, 0, "linear"], [59, 354, "hold"], [60, 0, "linear"], [89, 696, "hold"]]);
+  d.track(ring, "rotation", [[0, 0, "linear"], [59, 88.5, "hold"], [60, 0, "linear"], [89, 348, "hold"]]);
+  d.track(dot, "scale", [[0, [100, 100]], [30, [112, 112]], [59, [100, 100], "hold"], [60, [100, 100]], [75, [125, 125]], [89, [100, 100], "hold"]]);
+  d.track("Glow", "opacity", [[0, 70], [30, 100], [59, 70, "hold"], [60, 100], [89, 100, "hold"]]);
 
   const m = d.machine("Logo");
   d.input(m, "hover", "boolean", false);

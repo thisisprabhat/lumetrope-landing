@@ -18,6 +18,8 @@ export default function Sidebar({ current }: { current: string }) {
 
   return (
     <div className="text-sm">
+      {/* Client-only (it needs JS); the placeholder holds its space so the list doesn't shift. */}
+      {!ready && <div aria-hidden="true" className="mb-4 h-[38px]" />}
       {ready && (
         <input
           type="search"

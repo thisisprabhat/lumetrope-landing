@@ -14,7 +14,8 @@ const FILES: { name: string; machine: string; initial: string; w: number; h: num
   { name: "lumi", machine: "Lumi", initial: "Idle", w: 480, h: 480 },
   ...FEATURES.map((f) => ({ name: `icon-${f}`, machine: "Icon", initial: "Rest", w: 96, h: 96 })),
   { name: "zoetrope", machine: "Zoetrope", initial: "B1", w: 720, h: 420 },
-  { name: "cta", machine: "Cta", initial: "Rest", w: 220, h: 56 },
+  { name: "cta", machine: "Cta", initial: "Rest", w: 80, h: 50 },
+  { name: "cta-open", machine: "Cta", initial: "Rest", w: 80, h: 50 },
   { name: "logo", machine: "Logo", initial: "Idle", w: 40, h: 40 },
   { name: "sm-explainer", machine: "Explainer", initial: "Off", w: 480, h: 360 },
 ];
@@ -164,9 +165,9 @@ describe("Zoetrope", () => {
   });
 });
 
-describe("Cta", () => {
-  it("hovers, presses and finishes with a check mark", () => {
-    const e = load("cta");
+describe.each(["cta", "cta-open"])("Cta chip %s", (name) => {
+  it("hovers, presses and finishes back at rest", () => {
+    const e = load(name);
     start(e, "Cta");
     expect(set(e, "hover", true)).toBe("Hover");
     expect(fire(e, "press")).toBe("Pressed");

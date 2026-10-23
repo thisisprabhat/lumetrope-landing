@@ -1,7 +1,8 @@
 node_modules
 dist
 .superpowers/
-reports/
+reports/*
+!reports/lighthouse-summary.json
 test-results/
 playwright-report/
 .DS_Store

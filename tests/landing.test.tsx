@@ -62,7 +62,7 @@ describe("landing page", () => {
     expect(within(nav).getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/docs/getting-started/");
     const app = within(nav).getByRole("link", { name: "Open web app" });
     expect(app).toHaveAttribute("href", SITE.WEB_APP_URL);
-    expect(app.querySelector('[data-src="/animations/cta.lottie"]')).toHaveAttribute("data-machine", "Cta");
+    expect(app.querySelector('[data-src="/animations/cta-open.lottie"]')).toHaveAttribute("data-machine", "Cta");
   });
 
   test("both hero CTAs link correctly and carry a CTA player", () => {
@@ -75,7 +75,9 @@ describe("landing page", () => {
     const dl = within(hero as HTMLElement).getByRole("link", { name: /^Download/ });
     expect(dl).toHaveAttribute("href", "#download");
     expect(dl).toHaveTextContent("Download for macOS");
-    for (const a of [web, dl]) expect(a.querySelector('[data-src="/animations/cta.lottie"]')).not.toBeNull();
+    // download → arrow-into-tray chip; web app → arrow-out-of-window chip
+    expect(dl.querySelector('[data-src="/animations/cta.lottie"]')).not.toBeNull();
+    expect(web.querySelector('[data-src="/animations/cta-open.lottie"]')).not.toBeNull();
     vi.restoreAllMocks();
   });
 
@@ -152,7 +154,7 @@ describe("landing page", () => {
     const { container } = render(<Landing />);
     const hero = container.querySelector("section#top") as HTMLElement;
     const web = within(hero).getByRole("link", { name: "Open the web app" });
-    const chip = web.querySelector('[data-src="/animations/cta.lottie"]')!;
+    const chip = web.querySelector('[data-src="/animations/cta-open.lottie"]')!;
     const hover = () => JSON.parse(chip.getAttribute("data-inputs")!).hover;
     fireEvent.pointerEnter(web, { pointerType: "touch" });
     fireEvent.pointerDown(web, { pointerType: "touch" });
@@ -239,15 +241,14 @@ describe("landing page", () => {
     sec.getBoundingClientRect = () => ({ top: -500, height: 2000, bottom: 1500, left: 0, right: 0, width: 0, x: 0, y: -500, toJSON() {} });
     vi.stubGlobal("innerHeight", 1000);
     act(() => { window.dispatchEvent(new Event("scroll")); });
-    const calls = z.h.setInput.mock.calls.filter((c) => c[0] === "progress");
-    expect(calls.length).toBeGreaterThan(0);
-    const p = calls.at(-1)![1] as number;
-    expect(p).toBe(0.5); // (innerHeight/2 - top) / height = (500 + 500) / 2000
-    // 0.5 is the third quarter, so the third benefit is highlighted
+    // progress is passed as an input, so a player that starts after the last scroll still gets it
+    const zEl = container.querySelector('[data-src="/animations/zoetrope.lottie"]')!;
+    expect(JSON.parse(zEl.getAttribute("data-inputs")!)).toEqual({ progress: 0.5 }); // (innerHeight/2 - top) / height = (500 + 500) / 2000
+    // 0.5 is the third quarter, so the third benefit is highlighted (same value, same bands)
     const hs = within(sec).getAllByRole("heading", { level: 3 });
     expect(hs[2].className).toContain("text-text-0");
     expect(hs[0].className).not.toContain("text-text-0");
-    // a player that starts late gets the current progress as soon as it reports a state
+    // after a click-spin hands back to B1, the current progress is re-applied
     z.h.setInput.mockClear();
     act(() => z.onState("B1"));
     expect(z.h.setInput).toHaveBeenCalledWith("progress", 0.5);

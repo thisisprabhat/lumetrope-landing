@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SITE, downloads, primaryDownload } from "../config/site";
+import { SITE, primaryDownload, publishedDownloads } from "../config/site";
 import { bus } from "../lib/bus";
 import { detectPlatform } from "../lib/platform";
 import { LottieStage, type StageHandle } from "../player/LottieStage";
@@ -53,7 +53,7 @@ export function Hero() {
   useLumi(lumi);
   const [label, setLabel] = useState("Download for desktop");
   useEffect(() => {
-    const p = primaryDownload(detectPlatform(navigator as never), downloads(SITE.VERSION));
+    const p = primaryDownload(detectPlatform(navigator as never), publishedDownloads());
     if (p) setLabel(`Download for ${OS_NAME[p.os]}`);
   }, []);
 
@@ -71,7 +71,7 @@ export function Hero() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <CtaLink href="#download" onPress={() => bus.emit("download")} className="min-w-[15.5rem]">{label}</CtaLink>
-            <CtaLink href={SITE.WEB_APP_URL} variant="ghost">Open the web app</CtaLink>
+            <CtaLink href={SITE.WEB_APP_URL} variant="ghost" glyph="open">Open the web app</CtaLink>
           </div>
           <p className="mt-5 text-sm text-text-2">
             MIT licensed. For macOS, Windows and Linux, and any modern browser.

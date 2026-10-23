@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-23T15:20:44.382Z",
+  "base": "http://localhost:4180",
+  "formFactor": "mobile",
+  "runs": 3,
+  "budgets": {
+    "performance": 0.9,
+    "accessibility": 0.95,
+    "best-practices": 0.95,
+    "seo": 1
+  },
+  "pages": {
+    "/": {
+      "scores": {
+        "performance": 0.91,
+        "accessibility": 0.96,
+        "best-practices": 1,
+        "seo": 1
+      },
+      "allRuns": [
+        0.91,
+        0.91,
+        0.91
+      ],
+      "audits": {
+        "first-contentful-paint": "2.1 s",
+        "largest-contentful-paint": "3.2 s",
+        "total-blocking-time": "0 ms",
+        "cumulative-layout-shift": "0.019",
+        "speed-index": "2.1 s"
+      },
+      "initialJs": {
+        "files": [
+          "/assets/index-B-sWRk19.js"
+        ],
+        "gzipKB": 110.3
+      },
+      "misses": []
+    },
+    "/docs/getting-started/": {
+      "scores": {
+        "performance": 0.97,
+        "accessibility": 0.95,
+        "best-practices": 1,
+        "seo": 1
+      },
+      "allRuns": [
+        0.97,
+        0.97,
+        0.97
+      ],
+      "audits": {
+        "first-contentful-paint": "2.0 s",
+        "largest-contentful-paint": "2.1 s",
+        "total-blocking-time": "0 ms",
+        "cumulative-layout-shift": "0.002",
+        "speed-index": "2.0 s"
+      },
+      "initialJs": {
+        "files": [
+          "/assets/index-B-sWRk19.js"
+        ],
+        "gzipKB": 110.3
+      },
+      "misses": []
+    }
+  }
+}

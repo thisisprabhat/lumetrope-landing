@@ -40,8 +40,11 @@ export default function DocsLayout({ slug, children }: { slug: string; children:
   const prev = DOCS[i - 1];
   const next = DOCS[i + 1];
   const menu = useRef<HTMLDetailsElement>(null);
+  // Server HTML ships the menu closed (a tap opens it, even without JS) so that phones don't get a
+  // layout shift when it would otherwise collapse after hydration. Wide screens open it here; it
+  // lives in its own grid column there, so opening it moves nothing else.
   useEffect(() => {
-    if (menu.current && window.matchMedia?.("(max-width: 1023px)").matches) menu.current.open = false;
+    if (menu.current) menu.current.open = !!window.matchMedia?.("(min-width: 1024px)").matches;
   }, [slug]);
 
   return (
@@ -49,7 +52,7 @@ export default function DocsLayout({ slug, children }: { slug: string; children:
       <Header />
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_14rem]">
         <aside className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
-          <details ref={menu} open className="[&>summary]:cursor-pointer lg:[&>summary]:hidden">
+          <details ref={menu} className="[&>summary]:cursor-pointer lg:[&[open]>summary]:hidden">
             <summary className="mb-3 rounded border border-bg-3 px-3 py-2 text-sm text-text-1">Docs menu</summary>
             <Sidebar current={slug} />
           </details>
