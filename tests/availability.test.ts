@@ -9,16 +9,23 @@ const all = publishedDownloads(v, snapshot(downloads(v).map((d) => d.file)));
 const current = publishedDownloads();
 
 describe("availability wording follows the release snapshot", () => {
-  it("current snapshot: names only macOS (Apple Silicon) and Linux (ARM64)", () => {
-    expect(platformPhrase(current)).toBe("macOS (Apple Silicon) and Linux (ARM64)");
+  it("current snapshot: names macOS (Apple Silicon and Intel) and Linux (x64 and ARM64), no Windows", () => {
+    expect(platformPhrase(current)).toBe("macOS (Apple Silicon and Intel) and Linux (x64 and ARM64)");
     expect(operatingSystems(current)).toBe("macOS, Linux, Web");
     const a = platformsAnswer(current);
-    expect(a).not.toMatch(/Windows|Intel|x64|x86_64/);
-    expect(a).toContain("macOS (Apple Silicon; .dmg)");
-    expect(a).toContain("Linux (ARM64; .deb, .rpm and AppImage)");
+    expect(a).not.toMatch(/Windows \(/);
     expect(a).toContain(BUILD_URL);
     expect(a).toContain("use the web app");
     expect(desktopSummary(current)).not.toMatch(/Windows/);
+  });
+
+  it("arm-only release: names only Apple Silicon and ARM64", () => {
+    const arm = current.filter((d) => d.arch === "arm64");
+    expect(platformPhrase(arm)).toBe("macOS (Apple Silicon) and Linux (ARM64)");
+    const a = platformsAnswer(arm);
+    expect(a).not.toMatch(/Windows|Intel|x64|x86_64/);
+    expect(a).toContain("macOS (Apple Silicon; .dmg)");
+    expect(a).toContain("Linux (ARM64; .deb, .rpm and AppImage)");
   });
 
   it("every asset: names all three systems and both architectures", () => {
@@ -37,7 +44,8 @@ describe("availability wording follows the release snapshot", () => {
   it("install pages: a platform without a build says so up front", () => {
     expect(installStatus("windows", current)).toMatch(/no published Windows build/);
     expect(installStatus("windows", current)).toContain(BUILD_URL);
-    expect(installStatus("mac", current)).toMatch(/macOS builds for Apple Silicon\..*no published build for Intel/);
+    expect(installStatus("mac", current.filter((d) => d.arch === "arm64"))).toMatch(/macOS builds for Apple Silicon\..*no published build for Intel/);
+    expect(installStatus("mac", current)).toBe("This release has macOS builds for Apple Silicon and Intel.");
     expect(installStatus("mac", all)).toBe("This release has macOS builds for Apple Silicon and Intel.");
   });
 

@@ -2,39 +2,39 @@ import { describe, it, expect } from "vitest";
 import { RELEASE, SITE, archName, archsFor, downloads, intelMacMissing, primaryDownload, primaryLabel, publishedDownloads, type Release } from "../src/config/site";
 import { detectPlatform, detectPlatformAsync } from "../src/lib/platform";
 
-const list = downloads("0.1.0");
+const list = downloads("0.1.1");
 const pick = (os: any, arch: any) => primaryDownload({ os, arch }, list);
 
 describe("downloads", () => {
-  it("mac arm64 -> aarch64 dmg", () => expect(pick("mac", "arm64")?.file).toBe("Lumetrope_0.1.0_aarch64.dmg"));
-  it("mac unknown -> aarch64 dmg", () => expect(pick("mac", "unknown")?.file).toBe("Lumetrope_0.1.0_aarch64.dmg"));
-  it("mac x64 -> x64 dmg", () => expect(pick("mac", "x64")?.file).toBe("Lumetrope_0.1.0_x64.dmg"));
-  it("windows x64", () => expect(pick("windows", "x64")?.file).toBe("Lumetrope_0.1.0_x64-setup.exe"));
-  it("windows arm64", () => expect(pick("windows", "arm64")?.file).toBe("Lumetrope_0.1.0_arm64-setup.exe"));
-  it("linux unknown -> amd64.deb", () => expect(pick("linux", "unknown")?.file).toBe("Lumetrope_0.1.0_amd64.deb"));
+  it("mac arm64 -> aarch64 dmg", () => expect(pick("mac", "arm64")?.file).toBe("Lumetrope_0.1.1_aarch64.dmg"));
+  it("mac unknown -> aarch64 dmg", () => expect(pick("mac", "unknown")?.file).toBe("Lumetrope_0.1.1_aarch64.dmg"));
+  it("mac x64 -> x64 dmg", () => expect(pick("mac", "x64")?.file).toBe("Lumetrope_0.1.1_x64.dmg"));
+  it("windows x64", () => expect(pick("windows", "x64")?.file).toBe("Lumetrope_0.1.1_x64-setup.exe"));
+  it("windows arm64", () => expect(pick("windows", "arm64")?.file).toBe("Lumetrope_0.1.1_arm64-setup.exe"));
+  it("linux unknown -> amd64.deb", () => expect(pick("linux", "unknown")?.file).toBe("Lumetrope_0.1.1_amd64.deb"));
   it("other -> null", () => expect(pick("other", "unknown")).toBeNull());
   it("unknown linux arch never gets an arm64-only build", () => {
     const arm = list.filter((d) => d.arch === "arm64");
     expect(primaryDownload({ os: "linux", arch: "unknown" }, arm)).toBeNull();
-    expect(primaryDownload({ os: "linux", arch: "arm64" }, arm)?.file).toBe("Lumetrope_0.1.0_arm64.deb");
+    expect(primaryDownload({ os: "linux", arch: "arm64" }, arm)?.file).toBe("Lumetrope_0.1.1_arm64.deb");
   });
   it("a known arch with no build of its own gets no primary (Intel Mac, arm-only release)", () => {
     const arm = list.filter((d) => d.arch === "arm64");
     expect(primaryDownload({ os: "mac", arch: "x64" }, arm)).toBeNull();
-    expect(primaryDownload({ os: "mac", arch: "unknown" }, arm)?.file).toBe("Lumetrope_0.1.0_aarch64.dmg");
+    expect(primaryDownload({ os: "mac", arch: "unknown" }, arm)?.file).toBe("Lumetrope_0.1.1_aarch64.dmg");
     expect(primaryDownload({ os: "windows", arch: "x64" }, arm)).toBeNull();
   });
   it("urls", () => {
     expect(list.length).toBe(11);
-    for (const d of list) expect(d.url.startsWith(`${SITE.REPO_URL}/releases/download/v0.1.0/`)).toBe(true);
+    for (const d of list) expect(d.url.startsWith(`${SITE.REPO_URL}/releases/download/v0.1.1/`)).toBe(true);
   });
 });
 
 describe("Review Focus 4: never a dead or wrong primary button", () => {
-  const arm = list.filter((d) => d.arch === "arm64"); // what v0.1.0 actually ships
+  const arm = list.filter((d) => d.arch === "arm64"); // what v0.1.1 actually ships
   it("unknown-arch Mac (Safari/Firefox) gets the Apple Silicon dmg, labelled as Apple Silicon", () => {
     const p = primaryDownload({ os: "mac", arch: "unknown" }, arm)!;
-    expect(p.file).toBe("Lumetrope_0.1.0_aarch64.dmg");
+    expect(p.file).toBe("Lumetrope_0.1.1_aarch64.dmg");
     expect(primaryLabel(p)).toBe("Download for macOS (Apple Silicon)");
   });
   it("labels always name the architecture", () => {
@@ -75,8 +75,8 @@ describe("release snapshot", () => {
     }
   });
   it("filters the catalogue by asset name", () => {
-    const rel: Release = { repo: "x/y", tag: "v0.1.0", url: "", publishedAt: "", assets: [{ name: "Lumetrope_0.1.0_x64-setup.exe", size: 5 }] };
-    expect(publishedDownloads("0.1.0", rel).map((d) => d.file)).toEqual(["Lumetrope_0.1.0_x64-setup.exe"]);
+    const rel: Release = { repo: "x/y", tag: "v0.1.1", url: "", publishedAt: "", assets: [{ name: "Lumetrope_0.1.1_x64-setup.exe", size: 5 }] };
+    expect(publishedDownloads("0.1.1", rel).map((d) => d.file)).toEqual(["Lumetrope_0.1.1_x64-setup.exe"]);
   });
   it("offers nothing when the snapshot is for another version", () => {
     expect(publishedDownloads("9.9.9")).toEqual([]);

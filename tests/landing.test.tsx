@@ -71,10 +71,10 @@ describe("landing page", () => {
   test("hero and features name only platforms the release publishes", () => {
     const { container } = render(<Landing />);
     const hero = container.querySelector("section#top")!.textContent!;
-    expect(hero).toContain("macOS (Apple Silicon) and Linux (ARM64)");
+    expect(hero).toContain("macOS (Apple Silicon and Intel) and Linux (x64 and ARM64)");
     const feat = container.querySelector("section#features")!.textContent!;
-    expect(feat).toContain("Native desktop builds for macOS (Apple Silicon) and Linux (ARM64)");
-    expect(hero + feat).not.toMatch(/Windows|Intel/);
+    expect(feat).toContain("Native desktop builds for macOS (Apple Silicon and Intel) and Linux (x64 and ARM64)");
+    expect(hero + feat).not.toMatch(/Windows/);
   });
 
   test("both hero CTAs link correctly and carry a CTA player", () => {
