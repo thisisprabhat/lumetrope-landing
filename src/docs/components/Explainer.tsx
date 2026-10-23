@@ -15,7 +15,7 @@ export default function Explainer() {
         />
       </div>
       <figcaption className="mt-2 text-sm">
-        Click or tap the animation (or focus it and press Enter) to toggle its state.
+        Click or tap the animation, or focus it and press Enter, and watch the current state change.
         <span aria-live="polite" className="ml-2 font-medium">Current state: {state || "loading"}</span>
       </figcaption>
     </figure>
