@@ -15,12 +15,16 @@ export interface LottieStageProps {
   className?: string;
   onState?: (s: string) => void;
   inputs?: Record<string, boolean | number | string>;
+  /** LCP poster: eager high-priority image, engine starts right after first paint. */
+  priority?: boolean;
+  /** Purely visual: no tab stop, role or label; pointer input still works. */
+  decorative?: boolean;
   ref?: Ref<StageHandle>;
 }
 
 const fill = { position: "absolute", inset: 0, width: "100%", height: "100%" } as const;
 
-export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", className, onState, inputs, ref }: LottieStageProps) {
+export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", className, onState, inputs, priority, decorative, ref }: LottieStageProps) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const player = useRef<LumetropePlayer | null>(null);
@@ -28,7 +32,7 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
   onStateRef.current = onState;
   const inputsRef = useRef(inputs);
   inputsRef.current = inputs;
-  const visible = useRef(false);
+  const visible = useRef(!!priority);
   const tapTimer = useRef(0);
   const start = useRef<(() => void) | null>(null);
   const [state, setState] = useState("");
@@ -50,7 +54,7 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       import("./LumetropePlayer")
         .then(({ LumetropePlayer }) => LumetropePlayer.create(canvas.current!, { src, stateMachine, fit, onState: (s) => { setState(s); onStateRef.current?.(s); } }))
         .then((p) => {
-          if (cancelled) return p.destroy();
+          if (cancelled || !canvas.current) return p.destroy();
           player.current = p;
           for (const [k, v] of Object.entries(inputsRef.current ?? {})) p.setInput(k, v);
           if (!visible.current) p.pause();
@@ -74,10 +78,15 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       const id = setTimeout(() => onVisible(true), 200);
       io = { disconnect: () => clearTimeout(id) } as IntersectionObserver;
     }
+    let kick = 0;
+    if (priority && !reduced) kick = window.setTimeout(() => requestAnimationFrame ? requestAnimationFrame(load) : load(), 0);
     const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => player.current?.resize()) : null;
     ro?.observe(root.current!);
     return () => {
       cancelled = true;
+      clearTimeout(kick);
+      setShown(false);
+      setState("");
       io?.disconnect();
       ro?.disconnect();
       clearTimeout(tapTimer.current);
@@ -85,7 +94,7 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       player.current = null;
       start.current = null;
     };
-  }, [src, stateMachine, fit]);
+  }, [src, stateMachine, fit, priority]);
 
   useEffect(() => {
     for (const [k, v] of Object.entries(inputs ?? {})) player.current?.setInput(k, v);
@@ -100,9 +109,7 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       ref={root}
       className={className}
       data-state={state}
-      tabIndex={0}
-      role="group"
-      aria-label={alt}
+      {...(decorative ? { "aria-hidden": true } : { tabIndex: 0, role: "button", "aria-label": alt })}
       style={{ position: "relative", overflow: "hidden" }}
       onFocus={() => hover(true)}
       onBlur={() => hover(false)}
@@ -135,7 +142,7 @@ export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", c
       onPointerUp={ptr("up")}
       onClick={(e) => (player.current ? ptr("click")(e) : start.current?.())}
     >
-      <img src={poster} alt={alt} loading="lazy" decoding="async" style={{ ...fill, objectFit: fit === "cover" ? "cover" : "contain", opacity: shown ? 0 : 1, transition: "opacity .3s" }} />
+      <img src={poster} alt="" loading={priority ? "eager" : "lazy"} {...(priority ? { fetchPriority: "high" as const } : {})} decoding="async" style={{ ...fill, objectFit: fit === "cover" ? "cover" : "contain", opacity: shown ? 0 : 1, transition: "opacity .3s" }} />
       <canvas ref={canvas} aria-hidden="true" style={{ ...fill, opacity: shown ? 1 : 0, transition: "opacity .3s" }} />
     </div>
   );

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { createEngine, initEngine } from "../src/engine/engine";
+import { CanvasRenderer } from "../src/engine/vendor/CanvasRenderer";
+import { Engine, createEngine, initEngine } from "../src/engine/engine";
 import { LumetropePlayer } from "../src/player/LumetropePlayer";
 
 const wasm = readFileSync(new URL("../src/engine/vendor/lumetrope_wasm_bg.wasm", import.meta.url));
@@ -50,6 +51,33 @@ describe("LumetropePlayer with the real engine", () => {
     p.fire("pet");
     expect(p.state).toBe("Happy");
     expect(seen).toEqual(["Idle", "Perk", "Idle", "Happy"]);
+    p.destroy();
+  });
+
+  const mkCanvas = () => {
+    const ctx = new Proxy({}, { get: (_t, k) => (k === "canvas" ? {} : () => ({ addColorStop() {} })), set: () => true });
+    return { width: 0, height: 0, clientWidth: 100, clientHeight: 100, getContext: () => ctx, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100, height: 100 }) } as unknown as HTMLCanvasElement;
+  };
+
+  it("frees the engine when the file is bad", async () => {
+    const free = vi.spyOn(Engine.prototype, "free");
+    vi.stubGlobal("fetch", async () => ({ ok: true, arrayBuffer: async () => new TextEncoder().encode("<html>nope</html>").buffer }));
+    await expect(LumetropePlayer.create(mkCanvas(), { src: "/bad.lottie" })).rejects.toBeTruthy();
+    expect(free).toHaveBeenCalledTimes(1);
+    free.mockRestore();
+  });
+
+  it("skips render when the frame has not changed", async () => {
+    const bytes = buildLottie();
+    vi.stubGlobal("fetch", async () => ({ ok: true, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) }));
+    const p = await LumetropePlayer.create(mkCanvas(), { src: "/x.lottie", stateMachine: "Main" });
+    const render = vi.spyOn(CanvasRenderer.prototype, "render");
+    p.step(0);
+    p.step(0);
+    expect(render).toHaveBeenCalledTimes(0);
+    p.resize();
+    expect(render).toHaveBeenCalledTimes(1);
+    render.mockRestore();
     p.destroy();
   });
 });

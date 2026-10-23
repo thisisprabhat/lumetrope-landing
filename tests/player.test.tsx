@@ -47,17 +47,27 @@ describe("LottieStage", () => {
   it("renders the poster in SSR without touching window", () => {
     const html = renderToString(stage());
     expect(html).toContain("<img");
-    expect(html).toContain('alt="Demo"');
+    expect(html).toContain('aria-label="Demo"');
+    expect(html).toContain('role="button"');
     expect(html).toContain("data-state");
   });
 
   it("keeps the poster and does not throw when the player fails to start", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const unhandled = vi.fn();
+    process.on("unhandledRejection", unhandled);
     create.mockRejectedValue(new Error("wasm blocked"));
-    render(stage());
+    const { container } = render(stage());
     await flush();
     act(() => ioCb([{ isIntersecting: true }]));
     await flush();
-    expect(screen.getByAltText("Demo")).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 10));
+    expect(screen.getByRole("button", { name: "Demo" })).toBeInTheDocument();
+    expect(container.querySelector("img")).toHaveStyle({ opacity: "1" });
+    expect(err).not.toHaveBeenCalled();
+    expect(unhandled).not.toHaveBeenCalled();
+    process.off("unhandledRejection", unhandled);
+    err.mockRestore();
   });
 
   it("pauses when scrolled offscreen", async () => {
@@ -108,5 +118,54 @@ describe("LottieStage", () => {
     fireEvent.click(container.firstElementChild!);
     await flush();
     expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it("restores the poster and clears state when a reload fails", async () => {
+    const { container, rerender } = render(stage());
+    act(() => ioCb([{ isIntersecting: true }]));
+    await flush();
+    act(() => create.mock.calls[0][1].onState("Perk"));
+    const root = container.firstElementChild!;
+    expect(container.querySelector("img")).toHaveStyle({ opacity: "0" });
+    create.mockRejectedValue(new Error("init failed"));
+    rerender(<LottieStage src="/b.lottie" stateMachine="m" poster="/p.png" alt="Demo" />);
+    act(() => ioCb([{ isIntersecting: true }]));
+    await flush();
+    expect(container.querySelector("img")).toHaveStyle({ opacity: "1" });
+    expect(root.getAttribute("data-state")).toBe("");
+  });
+
+  it("priority poster is eager/high and the engine starts without the observer", async () => {
+    const { container } = render(<LottieStage src="/a.lottie" poster="/p.png" alt="Demo" priority />);
+    await new Promise((r) => setTimeout(r, 50));
+    const img = container.querySelector("img")!;
+    expect(img.getAttribute("loading")).toBe("eager");
+    expect(img.getAttribute("fetchpriority")).toBe("high");
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it("non-priority poster is lazy", () => {
+    const { container } = render(stage());
+    const img = container.querySelector("img")!;
+    expect(img.getAttribute("loading")).toBe("lazy");
+    expect(img.hasAttribute("fetchpriority")).toBe(false);
+  });
+
+  it("labels the root once and keeps the poster presentational", () => {
+    const { container } = render(stage());
+    expect(container.querySelector("img")!.getAttribute("alt")).toBe("");
+    expect(container.firstElementChild!.getAttribute("role")).toBe("button");
+  });
+
+  it("decorative removes tab stop and role but keeps pointer input", async () => {
+    const { container } = render(<LottieStage src="/a.lottie" poster="/p.png" alt="Logo" decorative />);
+    const root = container.firstElementChild as HTMLElement;
+    act(() => ioCb([{ isIntersecting: true }]));
+    await flush();
+    expect(root.hasAttribute("tabindex")).toBe(false);
+    expect(root.hasAttribute("role")).toBe(false);
+    expect(root.getAttribute("aria-hidden")).toBe("true");
+    fireEvent(root, new PE("pointerdown", { pointerType: "mouse", bubbles: true }));
+    expect(fake.pointer).toHaveBeenCalledWith("down", expect.any(Number), expect.any(Number));
   });
 });

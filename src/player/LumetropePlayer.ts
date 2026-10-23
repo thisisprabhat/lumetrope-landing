@@ -37,6 +37,7 @@ export class LumetropePlayer {
   private raf = 0;
   private last = 0;
   private frame = 0;
+  private drawn = NaN;
   private paused = false;
   private destroyed = false;
   private _state: string | null = null;
@@ -57,10 +58,15 @@ export class LumetropePlayer {
     if (!res.ok) throw new Error(`Failed to fetch ${o.src}: ${res.status}`);
     const bytes = new Uint8Array(await res.arrayBuffer());
     const engine = createEngine();
-    engine.load_file(o.src.split("/").pop()?.split("?")[0] || "anim.lottie", bytes);
-    const p = new LumetropePlayer(canvas, o, engine);
-    p.start();
-    return p;
+    try {
+      engine.load_file(o.src.split("/").pop()?.split("?")[0] || "anim.lottie", bytes);
+      const p = new LumetropePlayer(canvas, o, engine);
+      p.start();
+      return p;
+    } catch (e) {
+      engine.free();
+      throw e;
+    }
   }
 
   get state(): string | null {
@@ -136,7 +142,7 @@ export class LumetropePlayer {
       this.canvas.height = H;
     }
     this.fit = fitRect(this.info, { w: cw, h: ch }, this.o.fit ?? "contain");
-    this.draw();
+    this.draw(true);
   }
 
   /** Advance the machine by `dt` seconds and repaint. The rAF loop calls this. */
@@ -157,8 +163,10 @@ export class LumetropePlayer {
     this.engine.free();
   }
 
-  private draw(): void {
+  private draw(force = false): void {
     if (!this.ctx || this.destroyed) return;
+    if (!force && this.frame === this.drawn) return;
+    this.drawn = this.frame;
     const dpr = (typeof devicePixelRatio === "number" && devicePixelRatio) || 1;
     const { width: W, height: H } = this.canvas;
     const f = this.fit;

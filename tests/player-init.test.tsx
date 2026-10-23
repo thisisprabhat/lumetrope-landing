@@ -16,4 +16,5 @@ it("shares one engine init across three stages and keeps posters when it rejects
   await new Promise((r) => setTimeout(r, 50));
   expect(initEngine).toHaveBeenCalledTimes(1);
   expect(container.querySelectorAll("img")).toHaveLength(3);
+  expect(container.querySelectorAll("[role=button]")).toHaveLength(3);
 });
