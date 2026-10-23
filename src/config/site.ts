@@ -66,8 +66,29 @@ export function primaryDownload(p: { os: DownloadOS | "other"; arch: "arm64" | "
   if (p.os === "other") return null;
   const of = list.filter((x) => x.os === p.os && x.kind === PREFERRED[p.os]);
   if (p.arch !== "unknown") return of.find((x) => x.arch === p.arch) ?? null;
-  // Unknown arch: Macs are most likely Apple Silicon (and run an Intel build via Rosetta);
-  // elsewhere assume x64 and don't guess further.
+  // Unknown arch (Safari and Firefox never say): Macs are most likely Apple Silicon, so offer that
+  // build, labelled as such (see primaryLabel) next to a note for Intel Macs. If only an Intel dmg
+  // exists it is still safe to offer: it runs natively on Intel and through Rosetta on Apple
+  // Silicon. Elsewhere assume x64 and don't guess further.
   const likely = p.os === "mac" ? "arm64" : "x64";
   return of.find((x) => x.arch === likely) ?? (p.os === "mac" ? of[0] : undefined) ?? null;
 }
+
+export const OS_LABEL: Record<DownloadOS, string> = { mac: "macOS", windows: "Windows", linux: "Linux" };
+
+/** Short architecture name: "Apple Silicon" / "Intel" on macOS, "ARM64" / "x64" elsewhere. */
+export const archName = (d: Pick<Download, "os" | "arch">) =>
+  d.os === "mac" ? (d.arch === "arm64" ? "Apple Silicon" : "Intel") : d.arch === "arm64" ? "ARM64" : "x64";
+
+/** Primary button text. Always names the architecture, so an unknown-arch Mac sees "Apple Silicon". */
+export const primaryLabel = (d: Download) => `Download for ${OS_LABEL[d.os]} (${archName(d)})`;
+
+/** The architectures a release has builds for, per OS, e.g. ["Apple Silicon"] for macOS. */
+export const archsFor = (os: DownloadOS, list: Download[]) => [...new Set(list.filter((d) => d.os === os).map(archName))];
+
+/**
+ * True when the visitor is (or may be) on an Intel Mac and the release has no Intel build, so the
+ * page should say so and point to the web app.
+ */
+export const intelMacMissing = (p: { os: string; arch: string } | null, list: Download[]) =>
+  !!p && p.os === "mac" && p.arch !== "arm64" && !list.some((d) => d.os === "mac" && d.arch === "x64");

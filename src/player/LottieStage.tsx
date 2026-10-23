@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import type { LumetropePlayer } from "./LumetropePlayer";
+import { afterFirstPaint } from "./startGate";
 
 export interface StageHandle {
   setInput(name: string, v: boolean | number | string): void;
@@ -23,26 +24,6 @@ export interface LottieStageProps {
 }
 
 const fill = { position: "absolute", inset: 0, width: "100%", height: "100%" } as const;
-
-type Ric = (cb: () => void, o?: { timeout: number }) => number;
-let idle: Promise<void> | null = null;
-/**
- * Resolves once the page has loaded, painted (two frames) and gone idle, so the 2.6 MB WASM engine
- * and the players never compete with first paint or LCP. Shared by every stage; immediate in
- * environments without requestIdleCallback (tests).
- */
-function afterFirstPaint(): Promise<void> {
-  if (!idle) {
-    idle = new Promise((res) => {
-      const ric = (window as unknown as { requestIdleCallback?: Ric }).requestIdleCallback;
-      if (!ric) return res();
-      const go = () => requestAnimationFrame(() => requestAnimationFrame(() => ric(() => res(), { timeout: 2000 })));
-      if (document.readyState === "complete") go();
-      else window.addEventListener("load", go, { once: true });
-    });
-  }
-  return idle;
-}
 
 export function LottieStage({ src, stateMachine, poster, alt, fit = "contain", className, onState, inputs, priority, decorative, ref }: LottieStageProps) {
   const root = useRef<HTMLDivElement>(null);

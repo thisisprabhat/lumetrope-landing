@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { RELEASE, SITE, downloads, primaryDownload, publishedDownloads, type Release } from "../src/config/site";
+import { RELEASE, SITE, archName, archsFor, downloads, intelMacMissing, primaryDownload, primaryLabel, publishedDownloads, type Release } from "../src/config/site";
 import { detectPlatform, detectPlatformAsync } from "../src/lib/platform";
 
 const list = downloads("0.1.0");
@@ -27,6 +27,36 @@ describe("downloads", () => {
   it("urls", () => {
     expect(list.length).toBe(11);
     for (const d of list) expect(d.url.startsWith(`${SITE.REPO_URL}/releases/download/v0.1.0/`)).toBe(true);
+  });
+});
+
+describe("Review Focus 4: never a dead or wrong primary button", () => {
+  const arm = list.filter((d) => d.arch === "arm64"); // what v0.1.0 actually ships
+  it("unknown-arch Mac (Safari/Firefox) gets the Apple Silicon dmg, labelled as Apple Silicon", () => {
+    const p = primaryDownload({ os: "mac", arch: "unknown" }, arm)!;
+    expect(p.file).toBe("Lumetrope_0.1.0_aarch64.dmg");
+    expect(primaryLabel(p)).toBe("Download for macOS (Apple Silicon)");
+  });
+  it("labels always name the architecture", () => {
+    expect(primaryLabel(pick("mac", "x64")!)).toBe("Download for macOS (Intel)");
+    expect(primaryLabel(pick("windows", "x64")!)).toBe("Download for Windows (x64)");
+    expect(primaryLabel(pick("linux", "arm64")!)).toBe("Download for Linux (ARM64)");
+  });
+  it("flags the missing Intel build for Intel and unknown-arch Macs, not for Apple Silicon", () => {
+    expect(intelMacMissing({ os: "mac", arch: "unknown" }, arm)).toBe(true);
+    expect(intelMacMissing({ os: "mac", arch: "x64" }, arm)).toBe(true);
+    expect(intelMacMissing({ os: "mac", arch: "arm64" }, arm)).toBe(false);
+    expect(intelMacMissing({ os: "windows", arch: "x64" }, arm)).toBe(false);
+    expect(intelMacMissing(null, arm)).toBe(false);
+    // once an Intel dmg is published the note goes away
+    expect(intelMacMissing({ os: "mac", arch: "unknown" }, list)).toBe(false);
+  });
+  it("names the architectures a release covers per OS", () => {
+    expect(archsFor("mac", arm)).toEqual(["Apple Silicon"]);
+    expect(archsFor("mac", list)).toEqual(["Apple Silicon", "Intel"]);
+    expect(archsFor("windows", arm)).toEqual(["ARM64"]);
+    expect(archsFor("linux", list)).toEqual(["x64", "ARM64"]);
+    expect(archName({ os: "linux", arch: "x64" })).toBe("x64");
   });
 });
 

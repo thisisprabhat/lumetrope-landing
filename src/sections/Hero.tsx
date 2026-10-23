@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { SITE, primaryDownload, publishedDownloads } from "../config/site";
+import { useEffect, useRef } from "react";
+import { SITE, primaryDownload, primaryLabel, publishedDownloads } from "../config/site";
 import { bus } from "../lib/bus";
-import { detectPlatform } from "../lib/platform";
+import { usePlatform } from "../lib/usePlatform";
 import { LottieStage, type StageHandle } from "../player/LottieStage";
 import { CtaLink } from "./CtaLink";
 import { art } from "./art";
 
 const LUMI = art("lumi");
 const SLEEP_MS = 12_000;
-const OS_NAME = { mac: "macOS", windows: "Windows", linux: "Linux" } as const;
 
 /** Wire Lumi to the page: pointer x → `look`, 12 s without input → `sleepy`, bus `download` → `cheer`. */
 function useLumi(stage: React.RefObject<StageHandle | null>) {
@@ -51,11 +50,10 @@ function useLumi(stage: React.RefObject<StageHandle | null>) {
 export function Hero() {
   const lumi = useRef<StageHandle>(null);
   useLumi(lumi);
-  const [label, setLabel] = useState("Download for desktop");
-  useEffect(() => {
-    const p = primaryDownload(detectPlatform(navigator as never), publishedDownloads());
-    if (p) setLabel(`Download for ${OS_NAME[p.os]}`);
-  }, []);
+  // Same detection (UA, then client hints) and the same release data as the downloads section.
+  const plat = usePlatform();
+  const primary = plat ? primaryDownload(plat, publishedDownloads()) : null;
+  const label = primary ? primaryLabel(primary) : "Download for desktop";
 
   return (
     <section id="top" aria-labelledby="hero-h" className="hero relative overflow-hidden">

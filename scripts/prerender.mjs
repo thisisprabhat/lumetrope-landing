@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -79,3 +79,8 @@ write(
     DOCS.map((d) => `Source: ${site}/docs/${d.slug}/\n\n${md(d.file)}\n`).join("\n---\n\n"),
 );
 console.log("wrote sitemap.xml robots.txt llms.txt llms-full.txt");
+
+// The SSR bundle (and the copy of public/ Vite puts beside it, ~9.5 MB) is only needed to render
+// the pages above: drop it so dist/ is exactly what gets deployed.
+rmSync(join(dist, "server"), { recursive: true, force: true });
+console.log("removed dist/server");

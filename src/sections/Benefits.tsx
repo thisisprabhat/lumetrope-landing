@@ -36,7 +36,9 @@ export function Benefits() {
     let queued = false;
     const update = () => {
       queued = false;
-      if (sec.current) setProgress(Math.round(progressOf(sec.current) * 1000) / 1000);
+      // Whole percent steps: React bails out when the value is unchanged, so the section and its
+      // player only re-render about a hundred times across the whole section, not every frame.
+      if (sec.current) setProgress(Math.round(progressOf(sec.current) * 100) / 100);
     };
     const onScroll = () => {
       if (queued) return;

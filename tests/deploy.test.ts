@@ -29,9 +29,17 @@ describe("_headers (Netlify / Cloudflare Pages)", () => {
 });
 
 describe("deploy/nginx.conf", () => {
-  it("maps .wasm to application/wasm and compresses it", () => {
-    expect(nginx).toMatch(/types\s*\{\s*application\/wasm\s+wasm;\s*\}/);
-    expect(nginx).toMatch(/gzip_types[^;]*application\/wasm/);
+  it("maps .wasm to application/wasm only inside the wasm location (no duplicate with mime.types)", () => {
+    const loc = nginx.match(/location ~\* \\\.wasm\$ \{([^}]*\{[^}]*\}[^}]*)\}/);
+    expect(loc, "wasm location").not.toBeNull();
+    expect(loc![1]).toMatch(/types\s*\{\s*application\/wasm\s+wasm;\s*\}/);
+    expect(loc![1]).toContain("public, max-age=31536000, immutable");
+    // exactly one types {} block in the file, and it is that one
+    expect(nginx.replace(/#.*$/gm, "").match(/types\s*\{/g)).toHaveLength(1);
+  });
+  it("compresses JS (both MIME spellings) and wasm", () => {
+    const gz = nginx.match(/gzip_types([^;]*);/)![1];
+    for (const t of ["text/javascript", "application/javascript", "application/wasm", "text/css"]) expect(gz).toContain(t);
   });
   it("caches /assets/ immutably and pages with no-cache", () => {
     expect(nginx).toMatch(/location \/assets\/ \{[^}]*public, max-age=31536000, immutable/);

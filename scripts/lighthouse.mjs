@@ -7,7 +7,7 @@
 // Full reports go to reports/<page>.report.{html,json} (git-ignored, ~1 MB each); the scores go to
 // reports/lighthouse-summary.json, which is committed.
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
@@ -25,6 +25,8 @@ const BUDGET = { performance: 0.9, accessibility: 0.95, "best-practices": 0.95, 
 const JS_BUDGET_KB = 180;
 const outDir = join(root, "reports");
 mkdirSync(outDir, { recursive: true });
+// Clear earlier reports so reports/ only ever holds this run's results.
+for (const f of readdirSync(outDir)) if (/\.report\.(json|html)$/.test(f) || f === "lighthouse-summary.json") rmSync(join(outDir, f));
 
 const up = () => fetch(BASE).then((r) => r.ok, () => false);
 const run = (cmd, args) =>
@@ -65,18 +67,21 @@ try {
         `--output-path=${out}`,
         "--chrome-flags=--headless=new --no-first-run",
       ]);
-      results.push(JSON.parse(readFileSync(`${out}.report.json`, "utf8")));
+      results.push({ out, lhr: JSON.parse(readFileSync(`${out}.report.json`, "utf8")) });
     }
     // Median run by performance score.
-    results.sort((a, b) => a.categories.performance.score - b.categories.performance.score);
-    const lhr = results[Math.floor(results.length / 2)];
+    results.sort((a, b) => a.lhr.categories.performance.score - b.lhr.categories.performance.score);
+    const median = results[Math.floor(results.length / 2)];
+    const lhr = median.lhr;
+    // The median run is also kept as reports/<page>.report.{json,html}.
+    if (RUNS > 1) for (const ext of ["json", "html"]) copyFileSync(`${median.out}.report.${ext}`, join(outDir, `${pg.name}.report.${ext}`));
     const scores = Object.fromEntries(Object.keys(BUDGET).map((k) => [k, lhr.categories[k].score]));
     const audits = Object.fromEntries(
       ["first-contentful-paint", "largest-contentful-paint", "total-blocking-time", "cumulative-layout-shift", "speed-index"].map((k) => [k, lhr.audits[k].displayValue]),
     );
     const misses = Object.entries(BUDGET).filter(([k, min]) => scores[k] < min).map(([k]) => k);
     const html = join(root, "dist", pg.path.replace(/^\//, ""), "index.html");
-    summary.pages[pg.path] = { scores, allRuns: results.map((r) => r.categories.performance.score), audits, initialJs: initialJs(html), misses };
+    summary.pages[pg.path] = { scores, allRuns: results.map((r) => r.lhr.categories.performance.score), audits, initialJs: initialJs(html), misses };
     if (misses.length) failed = true;
   }
 } finally {

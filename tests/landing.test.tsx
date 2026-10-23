@@ -244,6 +244,11 @@ describe("landing page", () => {
     // progress is passed as an input, so a player that starts after the last scroll still gets it
     const zEl = container.querySelector('[data-src="/animations/zoetrope.lottie"]')!;
     expect(JSON.parse(zEl.getAttribute("data-inputs")!)).toEqual({ progress: 0.5 }); // (innerHeight/2 - top) / height = (500 + 500) / 2000
+    // sub-percent scrolling keeps the same value (no re-render every frame)
+    const before = zEl.getAttribute("data-inputs");
+    sec.getBoundingClientRect = () => ({ top: -508, height: 2000, bottom: 1492, left: 0, right: 0, width: 0, x: 0, y: -508, toJSON() {} });
+    act(() => { window.dispatchEvent(new Event("scroll")); });
+    expect(zEl.getAttribute("data-inputs")).toBe(before); // 0.504 rounds to 0.5
     // 0.5 is the third quarter, so the third benefit is highlighted (same value, same bands)
     const hs = within(sec).getAllByRole("heading", { level: 3 });
     expect(hs[2].className).toContain("text-text-0");
