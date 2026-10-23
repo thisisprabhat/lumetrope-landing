@@ -13,6 +13,8 @@ it("shares one engine init across three stages and keeps posters when it rejects
   vi.stubGlobal("fetch", async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(1) }));
   const { container } = render(<>{[1, 2, 3].map((i) => <LottieStage key={i} src={`/${i}.lottie`} poster={`/${i}.png`} alt={`Demo ${i}`} />)}</>);
   cbs.forEach((cb) => cb([{ isIntersecting: true }]));
+  // The player module is imported dynamically; under a loaded suite that can take well over 50 ms.
+  await vi.waitFor(() => expect(initEngine).toHaveBeenCalled(), { timeout: 5000 });
   await new Promise((r) => setTimeout(r, 50));
   expect(initEngine).toHaveBeenCalledTimes(1);
   expect(container.querySelectorAll("img")).toHaveLength(3);
